@@ -70,6 +70,10 @@ $KkFileViewEnabled = if ($env:KKFILEVIEW_ENABLED) { $env:KKFILEVIEW_ENABLED.Trim
 $KkFileViewBaseUrl = if ($env:KKFILEVIEW_BASE_URL) { $env:KKFILEVIEW_BASE_URL.Trim().TrimEnd('/') } else { "http://127.0.0.1:$KkFileViewPort" }
 $KkFileViewKey = if ($env:KKFILEVIEW_KEY) { $env:KKFILEVIEW_KEY.Trim() } else { '' }
 $S3PreviewEndpoint = if ($env:S3_PREVIEW_ENDPOINT) { $env:S3_PREVIEW_ENDPOINT.Trim() } elseif (-not $ExplicitS3Endpoint) { 'http://host.docker.internal:9000' } else { '' }
+$BootstrapAdminUsername = Get-EnvOrDefault -Name 'SMART_DESIGN_BOOTSTRAP_ADMIN_USERNAME' -DefaultValue 'admin'
+$BootstrapAdminPassword = Get-EnvOrDefault -Name 'SMART_DESIGN_BOOTSTRAP_ADMIN_PASSWORD' -DefaultValue 'AIGeek@2025'
+$BootstrapAdminDisplayName = Get-EnvOrDefault -Name 'SMART_DESIGN_BOOTSTRAP_ADMIN_DISPLAY_NAME' -DefaultValue 'System Admin'
+$BootstrapAdminEmail = Get-EnvOrDefault -Name 'SMART_DESIGN_BOOTSTRAP_ADMIN_EMAIL' -DefaultValue 'admin@example.local'
 
 function Write-Step {
     param([string]$Message)
@@ -509,6 +513,10 @@ Set-Location -LiteralPath '$(Get-SingleQuotedValue -Value $BackendDir)'
 `$env:KKFILEVIEW_BASE_URL = '$(Get-SingleQuotedValue -Value $KkFileViewBaseUrl)'
 `$env:KKFILEVIEW_KEY = '$(Get-SingleQuotedValue -Value $KkFileViewKey)'
 `$env:S3_PREVIEW_ENDPOINT = '$(Get-SingleQuotedValue -Value $S3PreviewEndpoint)'
+`$env:SMART_DESIGN_BOOTSTRAP_ADMIN_USERNAME = '$(Get-SingleQuotedValue -Value $BootstrapAdminUsername)'
+`$env:SMART_DESIGN_BOOTSTRAP_ADMIN_PASSWORD = '$(Get-SingleQuotedValue -Value $BootstrapAdminPassword)'
+`$env:SMART_DESIGN_BOOTSTRAP_ADMIN_DISPLAY_NAME = '$(Get-SingleQuotedValue -Value $BootstrapAdminDisplayName)'
+`$env:SMART_DESIGN_BOOTSTRAP_ADMIN_EMAIL = '$(Get-SingleQuotedValue -Value $BootstrapAdminEmail)'
 & '$(Get-SingleQuotedValue -Value $BackendPython)' -m uvicorn app.main:app --reload --host 127.0.0.1 --port $BackendPort
 "@
     Start-DetachedPowerShell -WorkingDirectory $BackendDir -WindowTitle 'smart_design backend' -ScriptText $backendScript
