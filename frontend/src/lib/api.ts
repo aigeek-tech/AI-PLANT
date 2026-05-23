@@ -1229,6 +1229,8 @@ export interface AgentMessageCreateResult {
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 export const AUTH_REQUIRED_EVENT = 'smart-design-auth-required';
+const GET_RESPONSE_CACHE_TTL_MS = 3000;
+const getResponseCache = new Map<string, { promise: Promise<unknown>; settledAt: number }>();
 
 export function buildApiUrl(path: string) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
@@ -1301,20 +1303,52 @@ function localeHeaders() {
   };
 }
 
-async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    credentials: 'include',
-    headers: localeHeaders(),
-  });
+function getResponseCacheKey(path: string) {
+  return `${readStoredLocale()}:${API_BASE_URL}${path}`;
+}
 
-  if (!response.ok) {
-    if (response.status === 401) {
-      window.dispatchEvent(new Event(AUTH_REQUIRED_EVENT));
-    }
-    throw new ApiError(await readErrorMessage(response), response.status);
+function clearGetResponseCache() {
+  getResponseCache.clear();
+}
+
+async function fetchJson<T>(path: string): Promise<T> {
+  const cacheKey = getResponseCacheKey(path);
+  const cached = getResponseCache.get(cacheKey);
+  if (cached && Date.now() - cached.settledAt < GET_RESPONSE_CACHE_TTL_MS) {
+    return cached.promise as Promise<T>;
   }
 
-  return response.json() as Promise<T>;
+  const request = (async () => {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      credentials: 'include',
+      headers: localeHeaders(),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.dispatchEvent(new Event(AUTH_REQUIRED_EVENT));
+      }
+      throw new ApiError(await readErrorMessage(response), response.status);
+    }
+
+    return response.json() as Promise<T>;
+  })();
+
+  getResponseCache.set(cacheKey, { promise: request, settledAt: Date.now() });
+  try {
+    const result = await request;
+    const entry = getResponseCache.get(cacheKey);
+    if (entry?.promise === request) {
+      entry.settledAt = Date.now();
+    }
+    return result;
+  } catch (error) {
+    const entry = getResponseCache.get(cacheKey);
+    if (entry?.promise === request) {
+      getResponseCache.delete(cacheKey);
+    }
+    throw error;
+  }
 }
 
 async function requestJson<T>(path: string, init: RequestInit): Promise<T> {
@@ -1335,6 +1369,7 @@ async function requestJson<T>(path: string, init: RequestInit): Promise<T> {
     throw new ApiError(await readErrorMessage(response), response.status);
   }
 
+  clearGetResponseCache();
   return response.json() as Promise<T>;
 }
 
@@ -1355,6 +1390,7 @@ async function requestFormData<T>(path: string, init: RequestInit): Promise<T> {
     throw new ApiError(await readErrorMessage(response), response.status);
   }
 
+  clearGetResponseCache();
   return response.json() as Promise<T>;
 }
 
