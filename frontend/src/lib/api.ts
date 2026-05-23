@@ -93,6 +93,13 @@ export interface StandardDetail extends StandardBase {
   pbs_levels?: PbsLevelTemplate[];
 }
 
+export interface StandardDetailOptions {
+  includeAttributes?: boolean;
+  includeTagClasses?: boolean;
+  includeEquipmentClasses?: boolean;
+  includePbsLevels?: boolean;
+}
+
 export interface Discipline {
   id: string;
   standard_id: string;
@@ -1631,8 +1638,25 @@ export async function deleteStandard(standardId: string) {
   });
 }
 
-export async function getStandardDetail(standardId: string) {
-  const response = await fetchJson<{ data: StandardDetail }>(`/api/standards/${standardId}`);
+function standardDetailQuery(options?: StandardDetailOptions) {
+  const query = new URLSearchParams();
+  if (options?.includeAttributes !== undefined) {
+    query.set('include_attributes', String(options.includeAttributes));
+  }
+  if (options?.includeTagClasses !== undefined) {
+    query.set('include_tag_classes', String(options.includeTagClasses));
+  }
+  if (options?.includeEquipmentClasses !== undefined) {
+    query.set('include_equipment_classes', String(options.includeEquipmentClasses));
+  }
+  if (options?.includePbsLevels !== undefined) {
+    query.set('include_pbs_levels', String(options.includePbsLevels));
+  }
+  return query.size > 0 ? `?${query.toString()}` : '';
+}
+
+export async function getStandardDetail(standardId: string, options?: StandardDetailOptions) {
+  const response = await fetchJson<{ data: StandardDetail }>(`/api/standards/${standardId}${standardDetailQuery(options)}`);
   return response.data;
 }
 

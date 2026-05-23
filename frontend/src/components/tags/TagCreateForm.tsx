@@ -90,7 +90,10 @@ export function TagCreateForm({
           return;
         }
         setStandardId(standardId);
-        const standard = await getStandardDetail(standardId);
+        const standard = await getStandardDetail(standardId, {
+          includeEquipmentClasses: false,
+          includePbsLevels: false,
+        });
         setClasses(standard.classes ?? []);
       } catch (e) {
         console.error('Failed to load standard', e);

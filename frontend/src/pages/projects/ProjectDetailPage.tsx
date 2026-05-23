@@ -201,6 +201,11 @@ export function ProjectDetailPage() {
           icon: PLUGIN_ACTION_ICON_MAP[slot.icon ?? ''] ?? Package,
         }))
     : [];
+  const projectStandardId =
+    typeof project?.reference_attributes?.standard_id === 'string'
+      ? project.reference_attributes.standard_id
+      : null;
+  const shouldLoadStandard = viewMode === 'pbs' || isTagImportOpen || Boolean(openTagDetailId);
 
   /* ---- Data loading ---- */
   useEffect(() => {
@@ -210,14 +215,6 @@ export function ProjectDetailPage() {
 
     let cancelled = false;
 
-    const loadProjectStandard = async (proj: Project) => {
-      const standardId = proj.reference_attributes?.standard_id;
-      if (typeof standardId !== 'string' || !standardId) {
-        return null;
-      }
-      return getStandardDetail(standardId);
-    };
-
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -225,7 +222,6 @@ export function ProjectDetailPage() {
           getPbsNodes(projectId),
           getProjectDetail(projectId),
         ]);
-        const fetchedStandard = await loadProjectStandard(fetchedProject);
 
         if (cancelled) {
           return;
@@ -233,7 +229,7 @@ export function ProjectDetailPage() {
 
         setNodes(fetchedNodes);
         setProject(fetchedProject);
-        setStandard(fetchedStandard);
+        setStandard(null);
         setExpandedIds(new Set(fetchedNodes.filter(isPbsTreeNode).map((n) => n.id)));
       } catch (e) {
         console.error(e);
@@ -257,6 +253,34 @@ export function ProjectDetailPage() {
       cancelled = true;
     };
   }, [navigate, projectId, showError]);
+
+  useEffect(() => {
+    if (!projectStandardId) {
+      setStandard(null);
+      return;
+    }
+    if (!shouldLoadStandard || standard?.id === projectStandardId) {
+      return;
+    }
+
+    let cancelled = false;
+    getStandardDetail(projectStandardId, { includeEquipmentClasses: false })
+      .then((nextStandard) => {
+        if (!cancelled) {
+          setStandard(nextStandard);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        if (!cancelled) {
+          showError('参考标准详情加载失败');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectStandardId, shouldLoadStandard, showError, standard?.id]);
 
   const pbsTreeNodes = useMemo(() => nodes.filter(isPbsTreeNode), [nodes]);
   const selectedNode = pbsTreeNodes.find((n) => n.id === selectedNodeId) ?? null;
@@ -602,7 +626,7 @@ export function ProjectDetailPage() {
       const nextStandard =
         typeof savedProject.reference_attributes?.standard_id === 'string' &&
         savedProject.reference_attributes.standard_id
-          ? await getStandardDetail(savedProject.reference_attributes.standard_id)
+          ? await getStandardDetail(savedProject.reference_attributes.standard_id, { includeEquipmentClasses: false })
           : null;
       setProject(savedProject);
       setStandard(nextStandard);
@@ -754,7 +778,7 @@ export function ProjectDetailPage() {
         <div className="flex-1 overflow-hidden p-6">
           <ProjectDocumentWorkspace
             projectId={projectId!}
-            standardId={typeof project?.reference_attributes?.standard_id === 'string' ? project.reference_attributes.standard_id : null}
+            standardId={projectStandardId}
             pbsNodes={nodes}
           />
         </div>

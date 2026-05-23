@@ -2565,8 +2565,17 @@ def commit_legacy_standard_import_job(
 def standards_detail(
     standard_id: str,
     include_attributes: bool = Query(default=False),
+    include_tag_classes: bool = Query(default=True),
+    include_equipment_classes: bool = Query(default=False),
+    include_pbs_levels: bool = Query(default=True),
 ) -> dict:
-    detail = get_standard_detail(standard_id, include_attributes=include_attributes)
+    detail = get_standard_detail(
+        standard_id,
+        include_attributes=include_attributes,
+        include_tag_classes=include_tag_classes,
+        include_equipment_classes=include_equipment_classes,
+        include_pbs_levels=include_pbs_levels,
+    )
     if detail is None:
         raise HTTPException(status_code=404, detail="Standard not found")
     return {"data": detail}

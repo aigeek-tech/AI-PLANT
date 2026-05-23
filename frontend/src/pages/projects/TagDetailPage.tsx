@@ -360,7 +360,7 @@ export function TagDetailPage({
     let cancelled = false;
     (async () => {
       try {
-        const nextStandard = await getStandardDetail(projectStandardId);
+        const nextStandard = await getStandardDetail(projectStandardId, { includeEquipmentClasses: false });
         if (cancelled) return;
         setStandard(nextStandard);
       } catch (error) {

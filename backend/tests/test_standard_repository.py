@@ -70,6 +70,44 @@ class StandardRepositoryTest(unittest.TestCase):
         self.assertEqual(detail["equipment_classes"][0]["attributes"], [equipment_attribute])
         self.assertEqual(detail["equipment_common_attribute_count"], 0)
 
+    def test_get_standard_detail_can_skip_equipment_definitions(self):
+        standard = {
+            "id": "standard-1",
+            "code": "CFIHOS",
+            "name": "CFIHOS",
+            "version_label": "2.0",
+            "thumbnail_url": None,
+            "status": "active",
+            "metadata": {},
+        }
+        tag_class = {
+            "id": "tag-class-1",
+            "code": "PIPE",
+            "name": "Pipe",
+            "parent_id": None,
+            "level_no": 1,
+            "description": None,
+            "status": "active",
+            "applies_to": "tag",
+            "attribute_count": 0,
+        }
+
+        with (
+            patch("app.repository.fetch_one", side_effect=[standard, {"total": 0}]),
+            patch("app.repository.fetch_all", side_effect=[[tag_class], []]) as fetch_all,
+        ):
+            detail = repository.get_standard_detail(
+                "standard-1",
+                include_attributes=False,
+                include_equipment_classes=False,
+                include_pbs_levels=False,
+            )
+
+        self.assertEqual(detail["classes"], [{**tag_class, "attributes": []}])
+        self.assertEqual(detail["equipment_classes"], [])
+        self.assertEqual(detail["pbs_levels"], [])
+        self.assertEqual(fetch_all.call_count, 1)
+
     def test_list_standard_common_attributes_filters_equipment_domain(self):
         with (
             patch("app.repository.fetch_one", side_effect=[{"id": "standard-1"}, {"total": 1}]) as fetch_one,

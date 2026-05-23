@@ -229,7 +229,41 @@ class StandardApiTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"data": detail})
-        get_detail.assert_called_once_with("standard-1", include_attributes=False)
+        get_detail.assert_called_once_with(
+            "standard-1",
+            include_attributes=False,
+            include_tag_classes=True,
+            include_equipment_classes=False,
+            include_pbs_levels=True,
+        )
+
+    def test_returns_standard_detail_with_requested_scope(self):
+        detail = {
+            "id": "standard-1",
+            "code": "DEC",
+            "name": "DEC Engineering Standards",
+            "version_label": "2024.1",
+            "thumbnail_url": None,
+            "status": "active",
+            "metadata": {},
+            "classes": [],
+            "equipment_classes": [],
+        }
+
+        with patch("app.main.get_standard_detail", return_value=detail) as get_detail:
+            response = client.get(
+                "/api/standards/standard-1?include_tag_classes=false&include_equipment_classes=true&include_pbs_levels=false"
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": detail})
+        get_detail.assert_called_once_with(
+            "standard-1",
+            include_attributes=False,
+            include_tag_classes=False,
+            include_equipment_classes=True,
+            include_pbs_levels=False,
+        )
 
     def test_lists_standard_disciplines(self):
         disciplines = [

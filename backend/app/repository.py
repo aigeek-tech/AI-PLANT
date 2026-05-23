@@ -1178,7 +1178,14 @@ def _get_standard_definition_group(standard_id: str, *, applies_to: str, include
     }
 
 
-def get_standard_detail(standard_id: str, *, include_attributes: bool = True) -> dict | None:
+def get_standard_detail(
+    standard_id: str,
+    *,
+    include_attributes: bool = True,
+    include_tag_classes: bool = True,
+    include_equipment_classes: bool = True,
+    include_pbs_levels: bool = True,
+) -> dict | None:
     standard = fetch_one(
         """
         SELECT
@@ -1198,25 +1205,37 @@ def get_standard_detail(standard_id: str, *, include_attributes: bool = True) ->
     if standard is None:
         return None
 
-    tag_definitions = _get_standard_definition_group(
-        standard_id,
-        applies_to="tag",
-        include_attributes=include_attributes,
+    tag_definitions = (
+        _get_standard_definition_group(
+            standard_id,
+            applies_to="tag",
+            include_attributes=include_attributes,
+        )
+        if include_tag_classes
+        else {"classes": [], "common_attributes": [], "common_attribute_count": 0}
     )
-    equipment_definitions = _get_standard_definition_group(
-        standard_id,
-        applies_to="equipment",
-        include_attributes=include_attributes,
+    equipment_definitions = (
+        _get_standard_definition_group(
+            standard_id,
+            applies_to="equipment",
+            include_attributes=include_attributes,
+        )
+        if include_equipment_classes
+        else {"classes": [], "common_attributes": [], "common_attribute_count": 0}
     )
 
-    pbs_levels = fetch_all(
-        """
-        SELECT id, standard_id, level_no, code, name, description, created_at, updated_at
-        FROM pbs_level_template
-        WHERE standard_id = %s
-        ORDER BY level_no ASC
-        """,
-        (standard_id,),
+    pbs_levels = (
+        fetch_all(
+            """
+            SELECT id, standard_id, level_no, code, name, description, created_at, updated_at
+            FROM pbs_level_template
+            WHERE standard_id = %s
+            ORDER BY level_no ASC
+            """,
+            (standard_id,),
+        )
+        if include_pbs_levels
+        else []
     )
 
     return {

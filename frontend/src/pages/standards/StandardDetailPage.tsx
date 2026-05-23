@@ -44,6 +44,12 @@ const ATTRIBUTE_PAGE_SIZE = 20;
 const NEW_ATTRIBUTE_ID = '__new_attribute__';
 const ATTRIBUTE_VALUE_TYPES: AttributeValueType[] = ['string', 'number', 'integer', 'boolean', 'date', 'enum', 'json'];
 
+function standardDetailOptionsForTab(tab: StandardDetailTab) {
+  return {
+    includeEquipmentClasses: tab === 'equipment' || tab === 'delivery',
+  };
+}
+
 const OBJECT_SCOPE_CONFIG: Record<ObjectDefinitionScope, {
   treeTitle: string;
   commonLabel: string;
@@ -238,6 +244,7 @@ export function StandardDetailPage() {
   const [dragOverAttributeId, setDragOverAttributeId] = useState<string | null>(null);
   const [isUploadingIcon, setIsUploadingIcon] = useState(false);
   const [activeTab, setActiveTab] = useState<StandardDetailTab>('tag');
+  const [loadedEquipmentDefinitionStandardId, setLoadedEquipmentDefinitionStandardId] = useState<string | null>(null);
   const [classDraft, setClassDraft] = useState<ClassDraft | null>(null);
   const [isSavingClass, setIsSavingClass] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -261,9 +268,10 @@ export function StandardDetailPage() {
       setError(null);
 
       try {
-        const data = localizeStandardDetail(await getStandardDetail(activeStandardId));
+        const data = localizeStandardDetail(await getStandardDetail(activeStandardId, { includeEquipmentClasses: false }));
         if (!cancelled) {
           setStandard(data);
+          setLoadedEquipmentDefinitionStandardId(null);
           setSelectedClassId(getDefaultSelectedClassId());
           setAttributePage(1);
         }
@@ -284,6 +292,49 @@ export function StandardDetailPage() {
       cancelled = true;
     };
   }, [standardId]);
+
+  useEffect(() => {
+    if (!standardId || !standard || (activeTab !== 'equipment' && activeTab !== 'delivery')) {
+      return;
+    }
+    if (loadedEquipmentDefinitionStandardId === standardId) {
+      return;
+    }
+
+    let cancelled = false;
+    getStandardDetail(standardId, {
+      includeTagClasses: false,
+      includeEquipmentClasses: true,
+      includePbsLevels: false,
+    })
+      .then((data) => {
+        if (cancelled) {
+          return;
+        }
+        const localized = localizeStandardDetail(data);
+        setStandard((current) => {
+          if (!current || current.id !== standardId) {
+            return localized;
+          }
+          return {
+            ...current,
+            equipment_classes: localized.equipment_classes,
+            equipment_common_attributes: localized.equipment_common_attributes,
+            equipment_common_attribute_count: localized.equipment_common_attribute_count,
+          };
+        });
+        setLoadedEquipmentDefinitionStandardId(standardId);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError('加载设备类型失败，请稍后重试。');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, loadedEquipmentDefinitionStandardId, standard, standardId]);
 
   useEffect(() => {
     if (!isObjectTab || !standardId || !selectedClassId) {
@@ -403,8 +454,10 @@ export function StandardDetailPage() {
 
   const reloadStandard = async () => {
     if (!standardId) return;
-    const data = localizeStandardDetail(await getStandardDetail(standardId));
+    const includeEquipmentClasses = standardDetailOptionsForTab(activeTab).includeEquipmentClasses;
+    const data = localizeStandardDetail(await getStandardDetail(standardId, { includeEquipmentClasses }));
     setStandard(data);
+    setLoadedEquipmentDefinitionStandardId(includeEquipmentClasses ? standardId : null);
     setSelectedClassId((current) => {
       const classes = getClassesForScope(data, objectScope);
       const hasCommonAttributes = getCommonAttributeCountForScope(data, objectScope) > 0;
