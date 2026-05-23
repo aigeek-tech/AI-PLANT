@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/.venv/
+backend/venv/
+
+# Build output
+dist/
+dist-ssr/
+build/
+coverage/
+frontend/dist/
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+backend/.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+*.crt
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime state and tool caches
+.omx/
+.cache/
+.claw/
+.playwright-mcp/
+.plugins/
+.vite/
+.playwright-cli/
+cad-viewer-main/
+spark/
+generated-images/
+
+# Databases and local artifacts
+*.db
+*.sqlite
+*.sqlite3
+deploy/offline/data/
+deploy/offline/images/
+deploy/offline/config/backend.env
+deploy/offline/deploy.local.md
+deploy/offline/deploy.local.json
+deploy/offline/mounts/backend/
+deploy/offline/mounts/frontend/
+dev/cad-preview-validation/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files
+backend/tmp_q.py

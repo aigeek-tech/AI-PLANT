@@ -1,0 +1,64 @@
+services:
+  postgres:
+    container_name: smart-design-oss-postgres
+    ports:
+      - "${POSTGRES_HOST_PORT:-15432}:5432"
+
+  minio:
+    container_name: smart-design-oss-minio
+    ports:
+      - "${MINIO_API_PORT:-19090}:9000"
+      - "${MINIO_CONSOLE_PORT:-19091}:9001"
+
+  minio-init:
+    container_name: smart-design-oss-minio-init
+
+  kkfileview:
+    container_name: smart-design-oss-kkfileview
+    ports:
+      - "${KKFILEVIEW_PORT:-18012}:8012"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: smart-design-oss-backend:local
+    container_name: smart-design-oss-backend
+    environment:
+      SMART_DESIGN_ENV: development
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-smart_design}
+      S3_ENDPOINT: http://minio:9000
+      S3_PREVIEW_ENDPOINT: ${S3_PREVIEW_ENDPOINT:-http://127.0.0.1:19090}
+      S3_BUCKET: ${S3_BUCKET:-smart-design-documents}
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      KKFILEVIEW_ENABLED: ${KKFILEVIEW_ENABLED:-true}
+      KKFILEVIEW_BASE_URL: ${KKFILEVIEW_BASE_URL:-http://kkfileview:8012}
+      SMART_DESIGN_ALLOWED_ORIGINS: ${SMART_DESIGN_ALLOWED_ORIGINS:-http://127.0.0.1:15173,http://localhost:15173}
+    ports:
+      - "${BACKEND_PORT:-13011}:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      kkfileview:
+        condition: service_started
+
+  document-converter:
+    image: smart-design-oss-document-converter:local
+    container_name: smart-design-oss-document-converter
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: smart-design-oss-frontend:local
+    container_name: smart-design-oss-frontend
+    ports:
+      - "${FRONTEND_PORT:-15173}:80"
+    depends_on:
+      backend:
+        condition: service_started

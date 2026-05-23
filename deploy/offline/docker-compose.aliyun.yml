@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/aigeek/smart-design-postgres:16
+
+  minio:
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/aigeek/smart-design-minio:RELEASE.2025-02-18T16-25-55Z
+
+  minio-init:
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/aigeek/smart-design-minio-mc:RELEASE.2025-02-21T16-00-46Z
+
+  kkfileview:
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/aigeek/smart-design-kkfileview:4.4.0-12
+
+  backend:
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/aigeek/smart-design-backend:20260428-185154-d3c9b17
+
+  document-converter:
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/aigeek/smart-design-document-converter:20260428-185154-d3c9b17
+
+  frontend:
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/aigeek/smart-design-frontend:20260428-185154-d3c9b17

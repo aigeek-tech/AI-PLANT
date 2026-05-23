@@ -1,0 +1,9 @@
+{
+  "host": "your-server.example.com",
+  "sshPort": 22,
+  "sshUser": "root",
+  "sshPassword": "",
+  "remoteDir": "/data/ai_handover",
+  "publicHealthUrl": "http://your-server.example.com:15173/api/auth/bootstrap/status",
+  "registryNamespace": "crpi-xxxxxxxxxxxxxxxx.cn-hangzhou.personal.cr.aliyuncs.com/aigeek"
+}

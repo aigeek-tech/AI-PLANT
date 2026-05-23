@@ -1,0 +1,16 @@
+services:
+  backend:
+    volumes:
+      - ./mounts/backend/app:/app/app:ro
+
+  document-converter:
+    volumes:
+      - ./mounts/backend/app:/workspace/backend/app:ro
+      - ./mounts/backend/tools:/workspace/backend/tools:ro
+      - ./data/document-conversion:/tmp/smart-design-document-conversion
+
+  frontend:
+    volumes:
+      - ./mounts/frontend/dist:/usr/share/nginx/html:ro
+      - ./config/frontend-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+

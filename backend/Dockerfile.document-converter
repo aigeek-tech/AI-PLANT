@@ -1,0 +1,63 @@
+ARG DOCUMENT_CONVERTER_BASE_IMAGE=swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/python:3.12-slim
+FROM ${DOCUMENT_CONVERTER_BASE_IMAGE}
+
+ARG DEBIAN_APT_MIRROR=https://mirrors.ustc.edu.cn
+ARG RUSTUP_INIT_URL=https://mirrors.ustc.edu.cn/rust-static/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
+ARG RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
+ARG RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
+ARG CARGO_REGISTRY_MIRROR=sparse+https://mirrors.ustc.edu.cn/crates.io-index/
+ARG NPM_REGISTRY=https://registry.npmmirror.com
+ARG RVMPARSER_REPOSITORY_REF=master
+ARG SPARK_REPOSITORY_URL=https://github.com/sparkjsdev/spark.git
+ARG SPARK_REPOSITORY_REF=main
+
+ENV PYTHONUNBUFFERED=1 \
+    CARGO_HOME=/usr/local/cargo \
+    RUSTUP_HOME=/usr/local/rustup \
+    SPARK_BUILD_LOD_DIR=/opt/spark-cli \
+    SPARK_BUILD_LOD_BIN=/opt/spark-cli/rust/target/release/build-lod \
+    PATH=/usr/local/cargo/bin:/opt/rvmparser/make:/opt/spark-cli/rust/target/release:$PATH
+
+RUN sed -i "s|http://deb.debian.org|${DEBIAN_APT_MIRROR}|g; s|http://security.debian.org|${DEBIAN_APT_MIRROR}|g" /etc/apt/sources.list.d/debian.sources \
+    && apt-get -o Acquire::Retries=5 update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        make \
+        nodejs \
+        npm \
+        pkg-config \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/local/bin/python /usr/bin/python
+
+WORKDIR /opt/rvmparser
+RUN git clone --recurse-submodules --depth 1 --branch "$RVMPARSER_REPOSITORY_REF" https://github.com/cdyk/rvmparser.git . \
+    || (git clone --recurse-submodules https://github.com/cdyk/rvmparser.git . \
+        && git checkout "$RVMPARSER_REPOSITORY_REF" \
+        && git submodule update --init --recursive) \
+    && make -C make -j"$(nproc)" \
+    && ln -sf /opt/rvmparser/make/rvmparser /usr/local/bin/rvmparser
+
+RUN curl --proto '=https' --tlsv1.2 -fsSL "$RUSTUP_INIT_URL" -o /tmp/rustup-init \
+    && chmod +x /tmp/rustup-init \
+    && RUSTUP_DIST_SERVER="$RUSTUP_DIST_SERVER" RUSTUP_UPDATE_ROOT="$RUSTUP_UPDATE_ROOT" /tmp/rustup-init -y --profile minimal --default-toolchain stable \
+    && rm -f /tmp/rustup-init
+
+RUN mkdir -p "$CARGO_HOME" \
+    && printf '[source.crates-io]\nreplace-with = "mirror"\n\n[source.mirror]\nregistry = "%s"\n\n[net]\ngit-fetch-with-cli = true\n' "$CARGO_REGISTRY_MIRROR" > "$CARGO_HOME/config.toml"
+
+WORKDIR /opt/spark-cli
+RUN git clone --depth 1 --branch "$SPARK_REPOSITORY_REF" "$SPARK_REPOSITORY_URL" . \
+    || (git clone "$SPARK_REPOSITORY_URL" . && git checkout "$SPARK_REPOSITORY_REF") \
+    && npm config set registry "$NPM_REGISTRY" \
+    && cargo build --manifest-path rust/build-lod/Cargo.toml --release --no-default-features
+
+COPY backend/requirements.txt /tmp/backend-requirements.txt
+RUN python -m pip install --break-system-packages --no-cache-dir -r /tmp/backend-requirements.txt
+
+WORKDIR /workspace/backend
+COPY backend/app ./app
+COPY backend/tools ./tools
+CMD ["python", "-m", "app.document_conversion_worker"]

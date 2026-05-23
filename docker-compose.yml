@@ -1,0 +1,136 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: smart-design-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-smart_design}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_HOST_PORT:-55432}:5432"
+    volumes:
+      - smart_design_standard_postgres_data:/var/lib/postgresql/data
+      - ./backend/db/migrations/0001_full_schema.sql:/docker-entrypoint-initdb.d/0001_full_schema.sql:ro
+      - ./backend/db/migrations/0002_standard_import_jobs.sql:/docker-entrypoint-initdb.d/0002_standard_import_jobs.sql:ro
+      - ./backend/db/migrations/0003_equipment_implementation.sql:/docker-entrypoint-initdb.d/0003_equipment_implementation.sql:ro
+      - ./backend/db/migrations/0004_agent_jobs.sql:/docker-entrypoint-initdb.d/0004_agent_jobs.sql:ro
+      - ./backend/db/migrations/0005_document_visualizations.sql:/docker-entrypoint-initdb.d/0005_document_visualizations.sql:ro
+      - ./backend/db/migrations/0006_document_conversion_jobs.sql:/docker-entrypoint-initdb.d/0006_document_conversion_jobs.sql:ro
+      - ./backend/db/migrations/0007_agent_harness.sql:/docker-entrypoint-initdb.d/0007_agent_harness.sql:ro
+      - ./backend/db/migrations/0008_discipline_document_requirements.sql:/docker-entrypoint-initdb.d/0008_discipline_document_requirements.sql:ro
+      - ./backend/db/migrations/0009_equipment_attribute_values.sql:/docker-entrypoint-initdb.d/0009_equipment_attribute_values.sql:ro
+      - ./backend/db/migrations/0010_spark_visualization_assets.sql:/docker-entrypoint-initdb.d/0010_spark_visualization_assets.sql:ro
+      - ./backend/db/migrations/0013_plugin_platform.sql:/docker-entrypoint-initdb.d/0013_plugin_platform.sql:ro
+      - ./backend/db/migrations/0016_strict_equipment_attribute_values.sql:/docker-entrypoint-initdb.d/0016_strict_equipment_attribute_values.sql:ro
+      - ./backend/db/migrations/0019_visualization_semantic_objects.sql:/docker-entrypoint-initdb.d/0019_visualization_semantic_objects.sql:ro
+      - ./backend/db/seeds/0001_stage0_seed.sql:/docker-entrypoint-initdb.d/0022_stage0_seed.sql:ro
+      - ./backend/db/seeds/0002_local_dev_sample_data.sql:/docker-entrypoint-initdb.d/0024_local_dev_sample_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:RELEASE.2025-02-18T16-25-55Z
+    container_name: smart-design-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_API_CORS_ALLOW_ORIGIN: "${MINIO_API_CORS_ALLOW_ORIGIN:-*}"
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - smart_design_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-02-21T16-00-46Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET_NAME: ${S3_BUCKET:-smart-design-documents}
+    volumes:
+      - ./sample-data/minio:/sample-data/minio:ro
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 \"$${MINIO_ROOT_USER}\" \"$${MINIO_ROOT_PASSWORD}\" &&
+      mc mb --ignore-existing \"local/$${MINIO_BUCKET_NAME}\" &&
+      if [ -d \"/sample-data/minio/$${MINIO_BUCKET_NAME}\" ]; then
+        mc mirror --overwrite \"/sample-data/minio/$${MINIO_BUCKET_NAME}\" \"local/$${MINIO_BUCKET_NAME}\";
+      else
+        echo \"No bundled MinIO sample data found for $${MINIO_BUCKET_NAME}\";
+      fi
+      "
+
+  kkfileview:
+    image: ${KKFILEVIEW_IMAGE:-ymlisoft/kkfileview:4.4.0-12}
+    container_name: smart-design-kkfileview
+    ports:
+      - "8012:8012"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      KK_FILE_UPLOAD_ENABLED: "false"
+      JAVA_OPTS: "-Xms512m -Xmx4g -XX:+UseG1GC"
+      KK_CAD_PREVIEW_TYPE: "pdf"
+      KK_CAD_THREAD: "1"
+      KK_CAD_TIMEOUT: "180"
+      KK_OFFICE_PREVIEW_TYPE: "pdf"
+      KK_DELETE_SOURCE_FILE: "false"
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  document-converter:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.document-converter
+      args:
+        DOCUMENT_CONVERTER_BASE_IMAGE: ${DOCUMENT_CONVERTER_BASE_IMAGE:-swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/python:3.12-slim}
+        DEBIAN_APT_MIRROR: ${DEBIAN_APT_MIRROR:-https://mirrors.ustc.edu.cn}
+        RUSTUP_INIT_URL: ${RUSTUP_INIT_URL:-https://mirrors.ustc.edu.cn/rust-static/rustup/dist/x86_64-unknown-linux-gnu/rustup-init}
+        RUSTUP_DIST_SERVER: ${RUSTUP_DIST_SERVER:-https://mirrors.ustc.edu.cn/rust-static}
+        RUSTUP_UPDATE_ROOT: ${RUSTUP_UPDATE_ROOT:-https://mirrors.ustc.edu.cn/rust-static/rustup}
+        CARGO_REGISTRY_MIRROR: ${CARGO_REGISTRY_MIRROR:-sparse+https://mirrors.ustc.edu.cn/crates.io-index/}
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com}
+        RVMPARSER_REPOSITORY_REF: ${RVMPARSER_REPOSITORY_REF:-master}
+        SPARK_REPOSITORY_URL: ${SPARK_REPOSITORY_URL:-https://github.com/sparkjsdev/spark.git}
+        SPARK_REPOSITORY_REF: ${SPARK_REPOSITORY_REF:-main}
+    image: smart-design-document-converter:local
+    container_name: smart-design-document-converter
+    working_dir: /workspace/backend
+    volumes:
+      - ./:/workspace
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-smart_design}
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: ${S3_BUCKET:-smart-design-documents}
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      DOCUMENT_CONVERSION_ENABLED: ${DOCUMENT_CONVERSION_ENABLED:-true}
+      DOCUMENT_CONVERSION_MAX_BYTES: ${DOCUMENT_CONVERSION_MAX_BYTES:-524288000}
+      DOCUMENT_CONVERSION_WORKDIR: /tmp/smart-design-document-conversion
+      RVM_CONVERTER_COMMAND: ${RVM_CONVERTER_COMMAND:-python /workspace/backend/tools/rvm_to_spark_ply.py --input {input} --output {output} --workdir {workdir}}
+      SPARK_BUILD_LOD_COMMAND: ${SPARK_BUILD_LOD_COMMAND:-python /workspace/backend/tools/spark_build_lod.py --input {input} --output {output} --quality --rad-chunked}
+      SPARK_BUILD_LOD_BIN: /opt/spark-cli/rust/target/release/build-lod
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+volumes:
+  smart_design_standard_postgres_data:
+  smart_design_minio_data:
