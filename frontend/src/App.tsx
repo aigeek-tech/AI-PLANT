@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthProvider';
 import { BrandingProvider } from './branding/BrandingProvider';
 import { Layout } from './components/layout/Layout';
@@ -14,21 +15,23 @@ import { UiDisplaySettingsProvider } from './settings/UiDisplaySettingsProvider'
 import { PluginProvider } from './plugins/PluginProvider';
 import { usePlugins } from './plugins/PluginProvider';
 import { PluginPageOutlet } from './plugins/PluginPageOutlet';
+import { lazyWithRetry } from './lib/lazyWithRetry';
+import { RouteErrorBoundary } from './components/ui/RouteErrorBoundary';
 
-const AiSettingsPage = lazy(() => import('./pages/settings/AiSettingsPage').then((module) => ({ default: module.AiSettingsPage })));
-const AccessManagementPage = lazy(() => import('./pages/settings/AccessManagementPage').then((module) => ({ default: module.AccessManagementPage })));
-const BrandingSettingsPage = lazy(() => import('./pages/settings/BrandingSettingsPage').then((module) => ({ default: module.BrandingSettingsPage })));
-const UiDisplaySettingsPage = lazy(() => import('./pages/settings/UiDisplaySettingsPage').then((module) => ({ default: module.UiDisplaySettingsPage })));
-const PluginCenterPage = lazy(() => import('./pages/settings/PluginCenterPage').then((module) => ({ default: module.PluginCenterPage })));
-const LoginPage = lazy(() => import('./pages/auth/LoginPage').then((module) => ({ default: module.LoginPage })));
-const ForbiddenPage = lazy(() => import('./pages/errors/ForbiddenPage').then((module) => ({ default: module.ForbiddenPage })));
-const StandardDetailPage = lazy(() => import('./pages/standards/StandardDetailPage').then((module) => ({ default: module.StandardDetailPage })));
-const StandardsPage = lazy(() => import('./pages/standards/StandardsPage').then((module) => ({ default: module.StandardsPage })));
-const ProjectsPage = lazy(() => import('./pages/projects/ProjectsPage').then((module) => ({ default: module.ProjectsPage })));
-const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage').then((module) => ({ default: module.ProjectDetailPage })));
-const ProjectDataQualityPage = lazy(() => import('./pages/projects/ProjectDataQualityPage').then((module) => ({ default: module.ProjectDataQualityPage })));
-const TagDetailPage = lazy(() => import('./pages/projects/TagDetailPage').then((module) => ({ default: module.TagDetailPage })));
-const DocumentPreviewPage = lazy(() => import('./pages/documents/DocumentPreviewPage').then((module) => ({ default: module.DocumentPreviewPage })));
+const AiSettingsPage = lazy(() => lazyWithRetry(() => import('./pages/settings/AiSettingsPage').then((module) => ({ default: module.AiSettingsPage }))));
+const AccessManagementPage = lazy(() => lazyWithRetry(() => import('./pages/settings/AccessManagementPage').then((module) => ({ default: module.AccessManagementPage }))));
+const BrandingSettingsPage = lazy(() => lazyWithRetry(() => import('./pages/settings/BrandingSettingsPage').then((module) => ({ default: module.BrandingSettingsPage }))));
+const UiDisplaySettingsPage = lazy(() => lazyWithRetry(() => import('./pages/settings/UiDisplaySettingsPage').then((module) => ({ default: module.UiDisplaySettingsPage }))));
+const PluginCenterPage = lazy(() => lazyWithRetry(() => import('./pages/settings/PluginCenterPage').then((module) => ({ default: module.PluginCenterPage }))));
+const LoginPage = lazy(() => lazyWithRetry(() => import('./pages/auth/LoginPage').then((module) => ({ default: module.LoginPage }))));
+const ForbiddenPage = lazy(() => lazyWithRetry(() => import('./pages/errors/ForbiddenPage').then((module) => ({ default: module.ForbiddenPage }))));
+const StandardDetailPage = lazy(() => lazyWithRetry(() => import('./pages/standards/StandardDetailPage').then((module) => ({ default: module.StandardDetailPage }))));
+const StandardsPage = lazy(() => lazyWithRetry(() => import('./pages/standards/StandardsPage').then((module) => ({ default: module.StandardsPage }))));
+const ProjectsPage = lazy(() => lazyWithRetry(() => import('./pages/projects/ProjectsPage').then((module) => ({ default: module.ProjectsPage }))));
+const ProjectDetailPage = lazy(() => lazyWithRetry(() => import('./pages/projects/ProjectDetailPage').then((module) => ({ default: module.ProjectDetailPage }))));
+const ProjectDataQualityPage = lazy(() => lazyWithRetry(() => import('./pages/projects/ProjectDataQualityPage').then((module) => ({ default: module.ProjectDataQualityPage }))));
+const TagDetailPage = lazy(() => lazyWithRetry(() => import('./pages/projects/TagDetailPage').then((module) => ({ default: module.TagDetailPage }))));
+const DocumentPreviewPage = lazy(() => lazyWithRetry(() => import('./pages/documents/DocumentPreviewPage').then((module) => ({ default: module.DocumentPreviewPage }))));
 
 function RouteFallback() {
   const { t } = useTranslation();
@@ -48,9 +51,7 @@ function App() {
             <PluginProvider>
               <BrandingProvider>
                 <UiDisplaySettingsProvider>
-                  <Suspense fallback={<RouteFallback />}>
-                    <AppRoutes />
-                  </Suspense>
+                  <RouteShell />
                 </UiDisplaySettingsProvider>
               </BrandingProvider>
             </PluginProvider>
@@ -62,6 +63,17 @@ function App() {
 }
 
 export default App;
+
+function RouteShell() {
+  const location = useLocation();
+  return (
+    <RouteErrorBoundary resetKey={location.pathname}>
+      <Suspense fallback={<RouteFallback />}>
+        <AppRoutes />
+      </Suspense>
+    </RouteErrorBoundary>
+  );
+}
 
 function AppRoutes() {
   const { isLoading, routes } = usePlugins();
