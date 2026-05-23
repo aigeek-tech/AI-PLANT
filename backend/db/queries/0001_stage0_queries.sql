@@ -23,7 +23,7 @@ SELECT
 FROM standard s
 JOIN class c ON c.standard_id = s.id
 LEFT JOIN attribute_definition ad ON ad.class_id = c.id
-WHERE s.code = 'DEC'
+WHERE s.code = 'CORE-CFIHOS-V2.0-excel-FINAL'
 ORDER BY c.code, ad.sort_order, ad.code;
 
 -- 3. Find required attributes by standard class.
