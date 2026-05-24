@@ -897,8 +897,17 @@ export function SparkDocumentViewer({
       pointer.x = ((event.clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
       pointer.y = -(((event.clientY - rect.top) / Math.max(1, rect.height)) * 2 - 1);
     };
-    const onPointerDown = () => canvas.focus();
+    const onPointerDown = (event: PointerEvent) => {
+      event.preventDefault();
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch {
+        // Some browsers may reject capture for non-primary or cancelled pointers.
+      }
+      canvas.focus({ preventScroll: true });
+    };
     const onPointerMove = (event: PointerEvent) => {
+      event.preventDefault();
       if (event.buttons !== 0) {
         hideWalkTargetIndicator(walkTargetIndicator);
         setHoverSemanticObjectId(null);
@@ -939,7 +948,17 @@ export function SparkDocumentViewer({
       hideWalkTargetIndicator(walkTargetIndicator);
       setHoverSemanticObjectId(null);
     };
+    const onPointerEnd = (event: PointerEvent) => {
+      try {
+        if (canvas.hasPointerCapture(event.pointerId)) {
+          canvas.releasePointerCapture(event.pointerId);
+        }
+      } catch {
+        // Capture can already be released by the browser when a gesture is cancelled.
+      }
+    };
     const onClick = (event: MouseEvent) => {
+      event.preventDefault();
       setPointerFromEvent(event);
       raycaster.setFromCamera(pointer, camera);
       const hit = raycaster.intersectObject(splat, false)[0];
@@ -957,6 +976,7 @@ export function SparkDocumentViewer({
       hideWalkTargetIndicator(walkTargetIndicator);
     };
     const onDoubleClick = (event: MouseEvent) => {
+      event.preventDefault();
       setPointerFromEvent(event);
       raycaster.setFromCamera(pointer, camera);
       const intersections = raycaster.intersectObject(splat, false);
@@ -992,6 +1012,8 @@ export function SparkDocumentViewer({
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerleave', onPointerLeave);
+    canvas.addEventListener('pointerup', onPointerEnd);
+    canvas.addEventListener('pointercancel', onPointerEnd);
     canvas.addEventListener('click', onClick);
     canvas.addEventListener('dblclick', onDoubleClick);
     window.addEventListener('resize', resize);
@@ -1029,6 +1051,8 @@ export function SparkDocumentViewer({
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerleave', onPointerLeave);
+      canvas.removeEventListener('pointerup', onPointerEnd);
+      canvas.removeEventListener('pointercancel', onPointerEnd);
       canvas.removeEventListener('click', onClick);
       scene.remove(splat);
       scene.remove(spark);
@@ -1059,7 +1083,7 @@ export function SparkDocumentViewer({
   const selectedSemanticAttributeRows = selectedSemanticObject ? semanticAttributeRows(selectedSemanticObject) : [];
 
   return (
-    <div ref={containerRef} className="relative flex h-full min-h-[36rem] flex-col overflow-hidden bg-slate-950">
+    <div ref={containerRef} className="relative flex h-full min-h-[36rem] touch-none select-none flex-col overflow-hidden overscroll-contain bg-slate-950">
       <div className="pointer-events-none absolute left-3 right-3 top-3 z-20 flex flex-wrap items-start justify-end gap-2">
         {loadState === 'loading' && (
           <div className="pointer-events-auto mr-auto rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur">
@@ -1137,7 +1161,7 @@ export function SparkDocumentViewer({
       <canvas
         ref={canvasRef}
         tabIndex={0}
-        className={`min-h-0 flex-1 outline-none ${hoverSemanticObjectId ? 'cursor-pointer' : ''}`}
+        className={`min-h-0 flex-1 touch-none select-none overscroll-contain outline-none ${hoverSemanticObjectId ? 'cursor-pointer' : ''}`}
       />
 
       {loadState === 'error' && (
