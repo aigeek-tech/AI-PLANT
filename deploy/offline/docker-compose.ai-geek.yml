@@ -1,0 +1,12 @@
+services:
+  backend:
+    build: null
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/ai-geek/ai-plant-backend:${AI_PLANT_IMAGE_TAG:-latest}
+
+  document-converter:
+    build: null
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/ai-geek/ai-plant-document-converter:${AI_PLANT_IMAGE_TAG:-latest}
+
+  frontend:
+    build: null
+    image: crpi-xxa0zq9b76nhf9vd.cn-hangzhou.personal.cr.aliyuncs.com/ai-geek/ai-plant-frontend:${AI_PLANT_IMAGE_TAG:-latest}
