@@ -100,6 +100,9 @@ const DEFAULT_SPARK_BACKGROUND = '#f8fafc';
 const DEFAULT_SPARK_MESH_QUATERNION: QuaternionTuple = [1, 0, 0, 0];
 const MIN_FOCUS_DISTANCE = 0.35;
 const WALK_TARGET_PREVIEW_INTERVAL_MS = 45;
+const DOUBLE_TAP_INTERVAL_MS = 320;
+const DOUBLE_TAP_MAX_DISTANCE_PX = 28;
+const TAP_MAX_DISTANCE_PX = 10;
 const WALK_TARGET_Z_AXIS = new THREE.Vector3(0, 0, 1);
 const WALK_TARGET_UP_VECTORS: Record<SparkNavigationConfig['upAxis'], THREE.Vector3> = {
   x: new THREE.Vector3(1, 0, 0),
@@ -892,13 +895,54 @@ export function SparkDocumentViewer({
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     let lastPreviewAt = 0;
-    const setPointerFromEvent = (event: MouseEvent | PointerEvent) => {
+    let lastTap: { x: number; y: number; at: number } | null = null;
+    const activeTouches = new Map<number, { x: number; y: number; moved: boolean }>();
+    const setPointerFromClient = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
-      pointer.y = -(((event.clientY - rect.top) / Math.max(1, rect.height)) * 2 - 1);
+      pointer.x = ((clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
+      pointer.y = -(((clientY - rect.top) / Math.max(1, rect.height)) * 2 - 1);
+    };
+    const setPointerFromEvent = (event: MouseEvent | PointerEvent) => {
+      setPointerFromClient(event.clientX, event.clientY);
+    };
+    const moveToSparkTarget = (clientX: number, clientY: number) => {
+      setPointerFromClient(clientX, clientY);
+      raycaster.setFromCamera(pointer, camera);
+      const intersections = raycaster.intersectObject(splat, false);
+      const hit = intersections[0];
+      if (!hit) {
+        hideWalkTargetIndicator(walkTargetIndicator);
+        return;
+      }
+      const semanticHit = pickSemanticObjectAtPoint(hit.point, semanticObjectsRef.current, splat);
+      if (semanticHit) {
+        setSelectedAnnotation(null);
+        setSelectedSemanticObjectId(semanticHit.object.id);
+        hideWalkTargetIndicator(walkTargetIndicator);
+        return;
+      }
+      const navigationMove = moveCameraToSparkNavigationTarget(
+        camera,
+        splat,
+        navigationState,
+        viewerConfig.navigation,
+        hit.point,
+      );
+      const movedToWalkTarget = navigationMove.moved;
+      if (!movedToWalkTarget && viewerConfig.navigation.mode !== 'walk') {
+        focusCameraOnPoint(camera, controls, hit.point);
+      } else if (!movedToWalkTarget) {
+        stopControlMomentum(controls);
+      } else {
+        stopControlMomentum(controls);
+      }
+      hideWalkTargetIndicator(walkTargetIndicator);
     };
     const onPointerDown = (event: PointerEvent) => {
       event.preventDefault();
+      if (event.pointerType === 'touch') {
+        activeTouches.set(event.pointerId, { x: event.clientX, y: event.clientY, moved: false });
+      }
       try {
         canvas.setPointerCapture(event.pointerId);
       } catch {
@@ -908,6 +952,15 @@ export function SparkDocumentViewer({
     };
     const onPointerMove = (event: PointerEvent) => {
       event.preventDefault();
+      if (event.pointerType === 'touch') {
+        const touchStart = activeTouches.get(event.pointerId);
+        if (touchStart) {
+          const distance = Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y);
+          if (distance > TAP_MAX_DISTANCE_PX) {
+            touchStart.moved = true;
+          }
+        }
+      }
       if (event.buttons !== 0) {
         hideWalkTargetIndicator(walkTargetIndicator);
         setHoverSemanticObjectId(null);
@@ -949,6 +1002,21 @@ export function SparkDocumentViewer({
       setHoverSemanticObjectId(null);
     };
     const onPointerEnd = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') {
+        event.preventDefault();
+        const touchStart = activeTouches.get(event.pointerId);
+        activeTouches.delete(event.pointerId);
+        if (touchStart && !touchStart.moved) {
+          const now = performance.now();
+          const tapDistance = lastTap ? Math.hypot(touchStart.x - lastTap.x, touchStart.y - lastTap.y) : Infinity;
+          if (lastTap && now - lastTap.at < DOUBLE_TAP_INTERVAL_MS && tapDistance < DOUBLE_TAP_MAX_DISTANCE_PX) {
+            moveToSparkTarget(touchStart.x, touchStart.y);
+            lastTap = null;
+          } else {
+            lastTap = { x: touchStart.x, y: touchStart.y, at: now };
+          }
+        }
+      }
       try {
         if (canvas.hasPointerCapture(event.pointerId)) {
           canvas.releasePointerCapture(event.pointerId);
@@ -977,37 +1045,7 @@ export function SparkDocumentViewer({
     };
     const onDoubleClick = (event: MouseEvent) => {
       event.preventDefault();
-      setPointerFromEvent(event);
-      raycaster.setFromCamera(pointer, camera);
-      const intersections = raycaster.intersectObject(splat, false);
-      const hit = intersections[0];
-      if (!hit) {
-        hideWalkTargetIndicator(walkTargetIndicator);
-        return;
-      }
-      const semanticHit = pickSemanticObjectAtPoint(hit.point, semanticObjectsRef.current, splat);
-      if (semanticHit) {
-        setSelectedAnnotation(null);
-        setSelectedSemanticObjectId(semanticHit.object.id);
-        hideWalkTargetIndicator(walkTargetIndicator);
-        return;
-      }
-      const navigationMove = moveCameraToSparkNavigationTarget(
-        camera,
-        splat,
-        navigationState,
-        viewerConfig.navigation,
-        hit.point,
-      );
-      const movedToWalkTarget = navigationMove.moved;
-      if (!movedToWalkTarget && viewerConfig.navigation.mode !== 'walk') {
-        focusCameraOnPoint(camera, controls, hit.point);
-      } else if (!movedToWalkTarget) {
-        stopControlMomentum(controls);
-      } else {
-        stopControlMomentum(controls);
-      }
-      hideWalkTargetIndicator(walkTargetIndicator);
+      moveToSparkTarget(event.clientX, event.clientY);
     };
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
