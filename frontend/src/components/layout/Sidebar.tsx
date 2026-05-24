@@ -17,10 +17,12 @@ const PLUGIN_ICON_MAP = {
 
 interface SidebarProps {
   collapsed: boolean;
+  mobileOpen?: boolean;
   onToggle: () => void;
+  onCloseMobile?: () => void;
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, mobileOpen = false, onToggle, onCloseMobile }: SidebarProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { auth, can, hasAnyProjectPermission, logout } = useAuth();
@@ -63,8 +65,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={clsx(
-        'fixed left-0 top-0 z-50 flex h-screen flex-col bg-adnoc-blue text-white shadow-xl transition-[width] duration-300',
-        collapsed ? 'w-20' : 'w-64',
+        'fixed left-0 top-0 z-50 flex h-[100dvh] flex-col bg-adnoc-blue text-white shadow-xl transition-[width,transform] duration-300',
+        collapsed ? 'lg:w-20' : 'lg:w-64',
+        'w-72 max-w-[82vw]',
+        mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       )}
     >
       <div className={clsx('flex h-12 items-center border-b border-white/10', collapsed ? 'px-3' : 'px-5')}>
@@ -106,6 +110,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       key={item.to}
                       to={item.to}
                       end={isEndMatch}
+                      onClick={onCloseMobile}
                       title={collapsed ? t(item.labelKey) : undefined}
                       className={({ isActive }) =>
                         clsx(

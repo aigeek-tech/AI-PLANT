@@ -154,13 +154,13 @@ export function StandardsPage() {
     }
 
     return (
-        <div className="space-y-8 animate-fade-in">
-            <div className="flex items-end justify-between gap-6">
+        <div className="space-y-6 animate-fade-in sm:space-y-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
                 <div>
-                    <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">标准管理</h2>
+                    <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">标准管理</h2>
                 </div>
                 <PermissionGate permission="standard.write">
-                    <div className="flex items-center gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:flex sm:items-center">
                         <button
                             onClick={() => setIsImporting(true)}
                             className="group flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-5 py-2.5 text-sm font-semibold text-primary-700 shadow-sm shadow-primary-100/80 transition-all hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-100 hover:shadow-md hover:shadow-primary-200/80 active:scale-95"
@@ -200,7 +200,7 @@ export function StandardsPage() {
             />
 
             <div className="flex items-center gap-4">
-                <div className="relative flex-1 max-w-xl group">
+                <div className="relative w-full max-w-xl group">
                     <Search className="absolute left-4 top-1/2 w-5 h-5 -translate-y-1/2 text-slate-400 group-focus-within:text-adnoc-blue transition-colors" />
                     <input
                         type="text"
@@ -212,7 +212,7 @@ export function StandardsPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:gap-8">
                 {filteredStandards.map((std, idx) => (
                     <div
                         key={std.id}
@@ -223,7 +223,7 @@ export function StandardsPage() {
                             className="glass-card premium-hover h-full cursor-pointer p-0 overflow-hidden group"
                         >
                             <div
-                                className="relative p-8 h-full flex flex-col"
+                                className="relative flex h-full flex-col p-5 sm:p-8"
                                 onClick={() => navigate(`/standards/${std.id}`)}
                             >
                                 <PermissionGate permission="standard.write" scopeId={std.id}>
@@ -346,10 +346,10 @@ function CreateStandardModal({ onClose, onSubmit }: {
 
     const modalContent = (
         <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-white/95 backdrop-blur-xl border border-white shadow-[0_24px_48px_-12px_rgba(0,115,230,0.15)] rounded-[2rem] w-full max-w-md p-8 transform transition-all duration-300">
-                <div className="flex items-center gap-6 mb-8">
+            <div className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-white bg-white/95 p-5 shadow-[0_24px_48px_-12px_rgba(0,115,230,0.15)] backdrop-blur-xl transform transition-all duration-300 sm:rounded-[2rem] sm:p-8">
+                <div className="mb-6 flex items-center gap-4 sm:mb-8 sm:gap-6">
                     <div 
-                        className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 text-adnoc-blue flex items-center justify-center shrink-0 cursor-pointer overflow-hidden border border-blue-100/50 shadow-inner group relative"
+                        className="relative flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-blue-100/50 bg-gradient-to-br from-blue-50 to-indigo-50 text-adnoc-blue shadow-inner group sm:h-20 sm:w-20"
                         onClick={() => fileInputRef.current?.click()}
                     >
                         {isUploading ? (
@@ -371,7 +371,7 @@ function CreateStandardModal({ onClose, onSubmit }: {
                         />
                     </div>
                     <div>
-                        <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">新增标准</h3>
+                        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight sm:text-2xl">新增标准</h3>
                         <p className="text-sm font-medium text-slate-500 mt-1">创建新的企业工程标准或规范</p>
                     </div>
                 </div>
@@ -409,7 +409,7 @@ function CreateStandardModal({ onClose, onSubmit }: {
                     </div>
                 </div>
 
-                <div className="mt-10 flex justify-end gap-3 pt-6 border-t border-slate-100/50">
+                <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-100/50 pt-5 sm:mt-10 sm:flex-row sm:justify-end sm:pt-6">
                     <button 
                         onClick={onClose} 
                         className="px-6 py-3 text-sm font-extrabold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"

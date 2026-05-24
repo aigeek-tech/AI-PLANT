@@ -65,10 +65,10 @@ export function DefinitionTree({
   const selectedNode = showSelectedActions && selectedId ? findTreeNode(nodes, selectedId) : null;
 
   return (
-    <div className="glass-card flex min-h-[420px] flex-col rounded-2xl p-4 xl:h-full xl:min-h-0">
+    <div className="glass-card flex max-h-[70dvh] min-h-[360px] min-w-0 flex-col rounded-2xl p-3 sm:p-4 xl:h-full xl:max-h-none xl:min-h-0">
       {showTitle && (
         <div className="mb-3 flex shrink-0 items-center justify-between">
-          <h3 className="text-lg font-black tracking-tighter text-slate-900">{title}</h3>
+          <h3 className="text-base font-black tracking-tighter text-slate-900 sm:text-lg">{title}</h3>
           {titleIcon}
         </div>
       )}
@@ -318,10 +318,10 @@ function DefinitionTreeNodeItem({
               {node.name}
             </span>
             {showNodeCodes && node.code && (
-              <span
-                title={node.code}
-                className={clsx(
-                   'shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide',
+            <span
+              title={node.code}
+              className={clsx(
+                   'hidden shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide sm:inline-flex',
                   isSelected ? 'bg-blue-100/50 text-blue-700' : 'bg-slate-100 text-slate-500',
                 )}
               >

@@ -58,15 +58,15 @@ export function ProjectsPage() {
   }, []);
 
   return (
-    <div className="h-full">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="min-h-full">
+      <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">项目管理</h1>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">项目管理</h1>
         </div>
         <PermissionGate permission="project.create">
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className={`${primaryButtonClass} px-5`}
+            className={`${primaryButtonClass} w-full px-5 sm:w-auto`}
           >
             <div className={primaryButtonIconClass}>
               <Plus className="h-4 w-4" />
@@ -85,12 +85,12 @@ export function ProjectsPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-adnoc-blue border-t-transparent"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
           {projects.map((project) => (
             <div
               key={project.id}
               onClick={() => navigate(`/projects/${project.id}`)}
-              className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/40 bg-white/60 p-4 shadow-xl shadow-gray-200/50 backdrop-blur-xl transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-200/60"
+              className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/40 bg-white/60 p-3 shadow-xl shadow-gray-200/50 backdrop-blur-xl transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-200/60 sm:p-4"
             >
               <div className="mb-4 overflow-hidden rounded-2xl border border-slate-200/70 bg-slate-100 shadow-inner">
                 <div className="relative aspect-video">

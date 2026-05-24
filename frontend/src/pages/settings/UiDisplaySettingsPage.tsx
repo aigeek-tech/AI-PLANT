@@ -186,8 +186,8 @@ export function UiDisplaySettingsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <Card className="rounded-2xl border border-slate-200 p-0 shadow-sm">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <Card className="min-w-0 rounded-2xl border border-slate-200 p-0 shadow-sm">
           <div className="space-y-5 p-5">
             <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -200,7 +200,7 @@ export function UiDisplaySettingsPage() {
                     {t('settings.classCodeDescription')}
                   </p>
                 </div>
-                <label className="inline-flex h-10 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-adnoc-blue/30">
+                <label className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-adnoc-blue/30">
                   <input
                     type="checkbox"
                     checked={settings.showStandardClassCodes}
@@ -224,7 +224,7 @@ export function UiDisplaySettingsPage() {
                 <select
                   value={settings.locale}
                   onChange={(event) => updateSettings({ locale: event.target.value as SupportedLocale })}
-                  className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm outline-none transition focus:border-adnoc-blue focus:ring-2 focus:ring-adnoc-blue/10"
+                  className="h-10 max-w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm outline-none transition focus:border-adnoc-blue focus:ring-2 focus:ring-adnoc-blue/10"
                 >
                   {SUPPORTED_LOCALES.map((locale) => (
                     <option key={locale} value={locale}>
@@ -252,7 +252,7 @@ export function UiDisplaySettingsPage() {
                     <p className="mt-1 text-xs font-medium text-amber-600">{t('settings.loginBackgroundReadonly')}</p>
                   ) : null}
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex min-w-0 flex-wrap gap-2">
                   <input
                     ref={loginBackgroundInputRef}
                     type="file"
@@ -346,8 +346,8 @@ export function UiDisplaySettingsPage() {
           </div>
         </Card>
 
-        <div className="space-y-4">
-          <Card className="rounded-2xl border border-slate-200">
+        <div className="min-w-0 space-y-4">
+          <Card className="min-w-0 rounded-2xl border border-slate-200">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
                 <SlidersHorizontal className="h-5 w-5" />
@@ -355,24 +355,24 @@ export function UiDisplaySettingsPage() {
               <div className="min-w-0 flex-1">
                 <h2 className="text-sm font-semibold text-slate-900">{t('settings.displayTitle')}</h2>
                 <div className="mt-3 space-y-2 text-sm text-slate-600">
-                  <div className="flex justify-between gap-4">
+                  <div className="flex min-w-0 justify-between gap-4">
                     <span>{t('settings.classCode')}</span>
                     <span className="font-medium text-slate-900">
                       {settings.showStandardClassCodes ? t('settings.show') : t('settings.hide')}
                     </span>
                   </div>
-                  <div className="flex justify-between gap-4">
+                  <div className="flex min-w-0 justify-between gap-4">
                     <span>{t('settings.loginBackground')}</span>
                     <span className="font-medium text-slate-900">
                       {loginBackgroundImageUrl ? t('settings.custom') : t('settings.default')}
                     </span>
                   </div>
-                  <div className="flex justify-between gap-4">
+                  <div className="flex min-w-0 justify-between gap-4">
                     <span>{t('common.language')}</span>
                     <span className="font-medium text-slate-900">{LOCALE_LABELS[settings.locale]}</span>
                   </div>
                   {loginBackgroundByteSize ? (
-                    <div className="flex justify-between gap-4">
+                    <div className="flex min-w-0 justify-between gap-4">
                       <span>{t('settings.backgroundSize')}</span>
                       <span className="font-medium text-slate-900">{formatBytes(loginBackgroundByteSize)}</span>
                     </div>
@@ -382,7 +382,7 @@ export function UiDisplaySettingsPage() {
             </div>
           </Card>
 
-          <Card className="rounded-2xl border border-slate-200">
+          <Card className="min-w-0 rounded-2xl border border-slate-200">
             <h2 className="text-sm font-semibold text-slate-900">{t('settings.treePreview')}</h2>
             <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-3">
               <div className="flex min-w-0 items-center gap-2 rounded-lg bg-blue-50/70 px-3 py-2 text-adnoc-blue">

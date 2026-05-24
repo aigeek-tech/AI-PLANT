@@ -118,9 +118,9 @@ export function ProjectDataQualityPage() {
   const hasUnavailableSelection = Boolean(selectedProjectId && !selectedProject && !isProjectsLoading);
 
   return (
-    <div className="flex h-[calc(100vh-theme(spacing.10))] min-h-0 flex-col overflow-hidden">
+    <div className="flex min-h-[calc(100dvh-6rem)] flex-col overflow-visible xl:h-[calc(100vh-theme(spacing.10))] xl:min-h-0 xl:overflow-hidden">
       <header className="shrink-0 rounded-2xl border border-white/60 bg-white/80 px-5 py-4 shadow-sm backdrop-blur-xl">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex min-w-0 flex-wrap items-center gap-1 text-sm text-slate-500">
               <Link to="/projects" className="font-medium transition hover:text-adnoc-blue">
@@ -132,8 +132,8 @@ export function ProjectDataQualityPage() {
             <h1 className="mt-1 text-2xl font-bold text-slate-900">项目数据质量</h1>
           </div>
 
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-            <label className="min-w-64">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
+            <label className="min-w-0 sm:min-w-64">
               <span className="sr-only">选择项目</span>
               <SearchableSelect
                 value={selectedProjectId}

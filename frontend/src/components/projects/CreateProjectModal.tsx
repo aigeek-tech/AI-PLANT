@@ -116,7 +116,7 @@ export function CreateProjectModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"
@@ -124,7 +124,7 @@ export function CreateProjectModal({
       />
       
       {/* Modal panel */}
-      <div className="relative w-full max-w-lg scale-100 transform overflow-hidden rounded-2xl border border-white/20 bg-white/60 p-6 opacity-100 shadow-2xl backdrop-blur-xl transition-all">
+      <div className="relative max-h-[94dvh] w-full max-w-lg scale-100 transform overflow-y-auto rounded-2xl border border-white/20 bg-white/60 p-4 opacity-100 shadow-2xl backdrop-blur-xl transition-all sm:p-6">
         <div className="absolute right-0 top-0 pr-4 pt-4">
           <button
             onClick={onClose}

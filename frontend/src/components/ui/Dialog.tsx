@@ -141,7 +141,7 @@ function DialogOverlay({ dialog, onClose }: { dialog: DialogState; onClose: () =
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-white/60 bg-white/80 p-8 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 duration-200">
+      <div className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-white/60 bg-white/80 p-5 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 duration-200 sm:rounded-[2rem] sm:p-8">
         <h3 className="mb-2 text-xl font-black tracking-tight text-slate-900">{dialog.title}</h3>
         {dialog.description && <p className="mb-6 text-sm text-slate-500">{dialog.description}</p>}
 
@@ -197,7 +197,7 @@ function DialogOverlay({ dialog, onClose }: { dialog: DialogState; onClose: () =
         {dialog.type === 'confirm' && <div className="mb-8" />}
 
         {/* ---- Buttons ---- */}
-        <div className="flex gap-3">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
           <button
             onClick={() => handleResolve(null)}
             className="flex-1 rounded-xl bg-slate-100/80 px-4 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200"

@@ -486,7 +486,7 @@ export function DocumentTypesPage({ standardId: fixedStandardId, embedded = fals
         </div>
       )}
 
-      <div className={clsx('grid min-h-0 flex-1 gap-4', embedded ? 'grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)]' : 'grid-cols-[340px_1fr]')}>
+      <div className={clsx('grid min-h-0 flex-1 grid-cols-1 gap-4', embedded ? 'xl:grid-cols-[320px_minmax(0,1fr)]' : 'xl:grid-cols-[340px_minmax(0,1fr)]')}>
         <DefinitionTree
           title="文档类型定义"
           titleIcon={<FileText className="h-5 w-5 text-slate-300" />}
@@ -507,7 +507,7 @@ export function DocumentTypesPage({ standardId: fixedStandardId, embedded = fals
         />
 
         {embedded ? (
-          <div className="min-h-[420px] xl:min-h-0">
+          <div className="min-h-[420px] min-w-0 xl:min-h-0">
             {isDetailLoading ? (
               <div className="flex h-full items-center justify-center">
                 <Loader2 className="h-7 w-7 animate-spin text-adnoc-blue" />
@@ -516,7 +516,7 @@ export function DocumentTypesPage({ standardId: fixedStandardId, embedded = fals
               <div className="flex h-full min-h-0 flex-col gap-4 animate-fade-in">
                 <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-2">
                   <div className="min-w-0 space-y-1">
-                    <h2 className="truncate text-2xl font-black tracking-tight text-slate-900">{currentScopeTitle}</h2>
+                    <h2 className="min-w-0 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{currentScopeTitle}</h2>
                     {currentScopeDescription && <p className="text-sm text-slate-500">{currentScopeDescription}</p>}
                     {!isCommonSelected && selectedType && (
                       <div className="flex flex-wrap items-center gap-2 text-xs font-bold tracking-normal text-slate-500">
@@ -785,7 +785,7 @@ function AttributeTable({
   }
 
   return (
-    <div className="relative max-h-[calc(100vh-20rem)] overflow-x-auto overflow-y-auto xl:min-h-0 xl:max-h-none xl:flex-1">
+    <div className="relative max-h-[calc(100dvh-16rem)] overflow-x-auto overflow-y-auto xl:min-h-0 xl:max-h-none xl:flex-1">
       <table className="min-w-[1020px] w-full table-fixed border-separate border-spacing-0 text-left text-sm">
         <thead className="sticky top-0 z-10 bg-slate-50/90 shadow-sm backdrop-blur-md">
           <tr>

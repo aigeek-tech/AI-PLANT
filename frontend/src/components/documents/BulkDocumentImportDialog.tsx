@@ -300,8 +300,8 @@ export function BulkDocumentImportDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-3 backdrop-blur-sm">
-      <div className="grid h-[92vh] w-[96vw] max-w-[1500px] grid-rows-[auto_1fr_auto] overflow-hidden rounded-3xl border border-white/60 bg-white shadow-2xl">
-        <div className="flex items-start justify-between border-b border-slate-100 px-6 py-5">
+      <div className="grid h-[94dvh] w-[96vw] max-w-[1500px] grid-rows-[auto_1fr_auto] overflow-hidden rounded-3xl border border-white/60 bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
           <div>
             <h3 className="text-lg font-bold text-slate-900">批量导入文档</h3>
             <p className="mt-1 text-sm text-slate-500">规则命中自动通过，AI 建议和低置信度项目需要你明确确认后再导入。</p>
@@ -311,8 +311,8 @@ export function BulkDocumentImportDialog({
           </button>
         </div>
 
-        <div className="grid min-h-0 grid-cols-[300px_minmax(0,1fr)]">
-          <aside className="border-r border-slate-100 bg-slate-50/60 p-5">
+        <div className="grid min-h-0 grid-cols-1 overflow-auto lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden">
+          <aside className="border-b border-slate-100 bg-slate-50/60 p-4 sm:p-5 lg:border-b-0 lg:border-r">
             <div
               onDragOver={handleDragOver}
               onDragEnter={handleDragOver}
@@ -327,7 +327,7 @@ export function BulkDocumentImportDialog({
               <div className="mt-1 text-xs text-slate-400">建议直接拖项目归档目录，系统会结合路径、文件名和 LLM 做归类。</div>
             </div>
 
-            <div className="mt-4 flex gap-3">
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
               <label className={`${secondaryButtonClass} flex-1`}>
                 <span className={secondaryButtonIconClass}>
                   <Upload className="h-4 w-4" />
@@ -382,7 +382,7 @@ export function BulkDocumentImportDialog({
             </button>
           </aside>
 
-          <section className="flex min-w-0 min-h-0 flex-col overflow-hidden p-5">
+          <section className="flex min-h-[520px] min-w-0 flex-col overflow-hidden p-4 sm:p-5 lg:min-h-0">
             <div className="mb-4 flex shrink-0 items-center justify-between gap-4">
               <div>
                 <h4 className="text-base font-semibold text-slate-900">导入候选</h4>
@@ -423,7 +423,7 @@ export function BulkDocumentImportDialog({
                     value={bulkRevisionNo}
                     onChange={(event) => setBulkRevisionNo(event.target.value)}
                     placeholder="对选中项批量设置版本号，如 A / 0 / REV1"
-                    className="min-w-[280px] flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-adnoc-blue focus:ring-4 focus:ring-adnoc-blue/10"
+                    className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-adnoc-blue focus:ring-4 focus:ring-adnoc-blue/10 sm:min-w-[280px]"
                   />
                   <button type="button" onClick={applyBulkRevision} disabled={selectedCount === 0} className={secondaryButtonClass}>
                     批量设版本号

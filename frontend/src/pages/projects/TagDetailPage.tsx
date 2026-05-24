@@ -1258,7 +1258,7 @@ export function TagDetailPage({
   }
 
   const parentOptions = allTags.filter((tag) => tag.id !== detail?.id && !isDescendantTag(tag.id));
-  const rootHeightClass = mode === 'overlay' ? 'h-screen' : 'h-[calc(100vh-theme(spacing.16))]';
+  const rootHeightClass = mode === 'overlay' ? 'h-[100dvh]' : 'min-h-[calc(100dvh-6rem)] lg:h-[calc(100vh-theme(spacing.16))]';
 
   function renderTagNavigation(tagId: string, children: React.ReactNode, className: string) {
     if (onOpenTag) {
@@ -1296,8 +1296,8 @@ export function TagDetailPage({
 
   return (
     <div className={`flex ${rootHeightClass} flex-col overflow-hidden bg-gray-50/50`}>
-      <div className="border-b border-gray-200/50 bg-white/80 px-6 py-4 backdrop-blur-xl">
-        <div className="mb-4 flex items-center text-sm text-gray-500">
+      <div className="border-b border-gray-200/50 bg-white/80 px-4 py-4 backdrop-blur-xl sm:px-6">
+        <div className="mb-4 flex min-w-0 items-center overflow-hidden text-sm text-gray-500">
           <Link to="/projects" className="transition-colors hover:text-adnoc-blue">项目管理</Link>
           <ChevronRight className="mx-1 h-4 w-4" />
           <Link to={`/projects/${projectId}`} className="transition-colors hover:text-adnoc-blue">
@@ -1307,7 +1307,7 @@ export function TagDetailPage({
           <span className="font-medium text-gray-900">TAG 详情</span>
         </div>
 
-        <div className="flex items-start justify-between gap-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-adnoc-blue/10 text-adnoc-blue">
@@ -1336,7 +1336,7 @@ export function TagDetailPage({
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 lg:gap-3">
             {onClose ? (
               <button type="button" onClick={onClose} className={secondaryButtonClass}>
                 <span className={secondaryButtonIconClass}>
@@ -1380,8 +1380,8 @@ export function TagDetailPage({
         </div>
       </div>
 
-      <div className="border-b border-slate-200 bg-white px-6">
-        <div className="flex gap-1">
+      <div className="border-b border-slate-200 bg-white px-4 sm:px-6">
+        <div className="flex gap-1 overflow-x-auto">
           {([
             { key: 'overview', label: '概览', icon: Boxes },
             { key: 'attributes', label: '属性', icon: TagIcon },
@@ -1408,7 +1408,7 @@ export function TagDetailPage({
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6">
         {activeTab === 'overview' ? (
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
             <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">

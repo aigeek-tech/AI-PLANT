@@ -337,14 +337,14 @@ export function TagImportDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-      <div className="flex h-[90vh] w-full max-w-[92vw] flex-col overflow-hidden rounded-[2rem] border border-white/60 bg-white/90 shadow-2xl backdrop-blur-xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-          <div className="flex items-center gap-3">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/40 p-3 backdrop-blur-sm sm:p-4">
+      <div className="flex h-[94dvh] w-full max-w-[96vw] flex-col overflow-hidden rounded-[1.5rem] border border-white/60 bg-white/90 shadow-2xl backdrop-blur-xl sm:h-[90vh] sm:rounded-[2rem]">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-adnoc-blue/10 text-adnoc-blue">
               <FileSpreadsheet className="h-5 w-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="text-lg font-black text-slate-900">TAG Excel 导入</h3>
               <p className="text-sm text-slate-500">
                 项目级多 PBS 节点导入，先校验预览，再确认写入
@@ -361,9 +361,9 @@ export function TagImportDialog({
         </div>
 
         {step === 'upload' && (
-          <div className="grid flex-1 gap-6 overflow-auto p-6 lg:grid-cols-[1.4fr_1fr]">
-            <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-6">
-              <div className="mb-6 flex items-center justify-between">
+          <div className="grid flex-1 gap-4 overflow-auto p-4 sm:p-6 lg:grid-cols-[1.4fr_1fr] lg:gap-6">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-4 sm:p-6">
+              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h4 className="text-xl font-bold text-slate-900">1. 下载模板</h4>
                   <p className="mt-1 text-sm text-slate-500">
@@ -401,7 +401,7 @@ export function TagImportDialog({
                 <p className="mt-2 text-sm text-slate-500">
                   仅支持 `.xlsx`，文件上限 10 MB，首版仅导入设备级 TAG
                 </p>
-                <div className="mt-6 flex justify-center gap-3">
+                <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
@@ -435,7 +435,7 @@ export function TagImportDialog({
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-6">
+            <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6">
               <h4 className="text-lg font-bold text-slate-900">导入规则</h4>
               <div className="mt-4 space-y-4 text-sm text-slate-600">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
@@ -461,7 +461,7 @@ export function TagImportDialog({
 
         {step === 'preview' && job && (
           <div className="flex min-h-0 flex-1 flex-col">
-            <div className="grid gap-3 border-b border-slate-200 bg-slate-50/80 px-6 py-4 md:grid-cols-3 xl:grid-cols-6">
+            <div className="grid gap-3 border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6 md:grid-cols-3 xl:grid-cols-6">
               {[
                 ['总行数', job.summary.total_rows],
                 ['可导入', job.summary.ready_rows],
@@ -477,7 +477,7 @@ export function TagImportDialog({
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-6 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-4 sm:px-6">
               <div className="flex flex-wrap items-center gap-2">
                 {([
                   ['all', '全部'],
@@ -569,9 +569,9 @@ export function TagImportDialog({
               </div>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-auto px-6 py-4">
+            <div className="min-h-0 flex-1 overflow-auto px-4 py-4 sm:px-6">
               <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <table className="min-w-full text-left text-sm">
+                <table className="min-w-[980px] text-left text-sm">
                   <thead className="sticky top-0 z-10 bg-slate-50">
                     <tr className="border-b border-slate-200">
                       <th className="px-4 py-3 text-slate-600">选择</th>
@@ -709,7 +709,7 @@ export function TagImportDialog({
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4">
+            <div className="flex flex-col gap-3 border-t border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div className="text-sm text-slate-500">
                 第 {job.page} / {job.total_pages} 页
                 {isReloading && <span className="ml-2 inline-flex items-center gap-1 text-adnoc-blue"><Loader2 className="h-4 w-4 animate-spin" /> 刷新中</span>}

@@ -681,21 +681,21 @@ export function ProjectDetailPage() {
   /*  RENDER                                                           */
   /* ================================================================ */
   return (
-    <div className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
+    <div className="flex min-h-[calc(100dvh-6rem)] flex-col lg:h-[calc(100vh-theme(spacing.16))]">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-6 py-4 flex flex-wrap items-center justify-between gap-3 z-10">
+      <div className="z-10 flex flex-col gap-3 border-b border-gray-200/50 bg-white/80 px-3 py-3 backdrop-blur-xl sm:px-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:px-6 lg:py-4">
         <div className="flex min-w-0 items-center text-sm text-gray-500">
           <Link to="/projects" className="hover:text-adnoc-blue transition-colors">项目管理</Link>
           <ChevronRight className="h-4 w-4 mx-1" />
           <span className="text-gray-900 font-medium">{viewTitle}</span>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 lg:justify-end">
           {projectDetailActions.length > 0 && (
             <div className="flex flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
               {projectDetailActions.map((action) => {
                 const Icon = action.icon;
                 return (
-                  <Link
+              <Link
                     key={`${action.pluginId}:${action.to}`}
                     to={action.to}
                     title={action.title ?? action.label}
@@ -775,7 +775,7 @@ export function ProjectDetailPage() {
       </div>
 
       {viewMode === 'documents' ? (
-        <div className="flex-1 overflow-hidden p-6">
+        <div className="flex-1 overflow-visible p-3 sm:p-4 lg:overflow-hidden lg:p-6">
           <ProjectDocumentWorkspace
             projectId={projectId!}
             standardId={projectStandardId}
@@ -783,10 +783,10 @@ export function ProjectDetailPage() {
           />
         </div>
       ) : (
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-visible lg:flex-row lg:overflow-hidden">
         {/* ============== Left Panel: PBS Tree ============== */}
-        <div className="w-80 bg-white/50 backdrop-blur-md border-r border-gray-200/50 flex flex-col relative z-0">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+        <div className="relative z-0 flex max-h-[46dvh] w-full flex-col border-b border-gray-200/50 bg-white/50 backdrop-blur-md lg:max-h-none lg:w-80 lg:border-b-0 lg:border-r">
+          <div className="flex items-center justify-between gap-3 border-b border-gray-100 p-3 sm:p-4">
             <h3 className="font-medium text-gray-900 flex items-center gap-2">
               <LayoutGrid className="h-4 w-4 text-adnoc-blue" />
               PBS 层级结构
@@ -803,7 +803,7 @@ export function ProjectDetailPage() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
+          <div className="min-h-0 flex-1 overflow-y-auto p-3 custom-scrollbar">
             {isLoading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-adnoc-blue" />
@@ -857,7 +857,7 @@ export function ProjectDetailPage() {
         </div>
 
         {/* ============== Right Panel: Tags ============== */}
-        <div className="flex-1 bg-gray-50/50 flex flex-col overflow-hidden relative">
+        <div className="relative flex min-h-[520px] flex-1 flex-col overflow-visible bg-gray-50/50 lg:min-h-0 lg:overflow-hidden">
           {selectedNode ? (
             <ProjectTagPanel
               projectId={projectId!}

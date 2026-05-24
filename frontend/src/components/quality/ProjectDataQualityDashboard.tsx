@@ -305,7 +305,7 @@ export function ProjectDataQualityDashboard({ projectId, pbsNodes }: ProjectData
   if (!summary) return null;
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+    <div className="flex min-h-full flex-col gap-4 overflow-visible xl:h-full xl:min-h-0 xl:overflow-hidden">
       <section className="shrink-0 rounded-3xl border border-white/60 bg-white/80 p-4 shadow-sm backdrop-blur-xl">
         <div className="grid gap-4 lg:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.5fr)] lg:items-start">
           <div className="min-w-0">
@@ -354,7 +354,7 @@ export function ProjectDataQualityDashboard({ projectId, pbsNodes }: ProjectData
         </div>
       </section>
 
-      <section className="grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 xl:grid-cols-[280px_minmax(0,1fr)_330px] xl:overflow-hidden xl:pr-0">
+      <section className="grid min-h-0 flex-1 gap-4 overflow-visible xl:grid-cols-[280px_minmax(0,1fr)_330px] xl:overflow-hidden xl:pr-0">
         <FilterPanel
           pbsNodes={pbsNodes}
           classOptions={classOptions}

@@ -651,8 +651,8 @@ export function ProjectTagPanel({
           </div>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-slate-200/80 bg-slate-50/70 p-4">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_220px_180px_auto]">
+        <div className="mt-5 rounded-3xl border border-slate-200/80 bg-slate-50/70 p-3 sm:p-4">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_220px_180px_auto]">
             <label className="relative block">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -743,7 +743,7 @@ export function ProjectTagPanel({
         />
       )}
 
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6">
         {error ? (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-sm text-red-600">{error}</div>
         ) : isInitialLoading ? (
@@ -757,8 +757,8 @@ export function ProjectTagPanel({
             <p className="mt-1 text-xs">{isSearchMode ? '可以调整属性条件或清空筛选后重试' : '点击上方按钮添加设备 Tag'}</p>
           </div>
         ) : isSearchMode ? (
-          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-            <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <table className="min-w-[860px] w-full text-left text-sm">
               <thead className="border-b border-gray-100 bg-slate-50">
                 <tr>
                   <th className="px-6 py-4 font-semibold text-slate-600">位号</th>
@@ -797,8 +797,8 @@ export function ProjectTagPanel({
             </table>
           </div>
         ) : (
-          <div className="overflow-visible rounded-2xl border border-gray-100 bg-white shadow-sm">
-            <table className="w-full whitespace-nowrap text-left text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <table className="min-w-[720px] w-full whitespace-nowrap text-left text-sm">
               <thead className="border-b border-gray-100 bg-slate-50">
                 <tr>
                   <th className="px-6 py-4 font-semibold text-slate-600">位号 (Tag No)</th>

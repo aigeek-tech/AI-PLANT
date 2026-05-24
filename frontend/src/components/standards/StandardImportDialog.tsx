@@ -274,14 +274,14 @@ export function StandardImportDialog({
   const modalTitle = targetMode === 'merge' ? 'AI 补录标准' : 'AI 录入标准';
 
   const dialogContent = (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[94vh] w-full max-w-7xl flex-col overflow-hidden rounded-3xl border border-white/70 bg-white shadow-2xl">
-        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
-          <div className="flex items-start gap-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/45 p-3 backdrop-blur-sm sm:p-4">
+      <div className="flex max-h-[94dvh] w-full max-w-7xl flex-col overflow-hidden rounded-3xl border border-white/70 bg-white shadow-2xl">
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-adnoc-blue">
               <Sparkles className="h-6 w-6" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="text-lg font-black text-slate-900">{modalTitle}</h3>
               <p className="mt-1 text-sm text-slate-500">
                 {targetMode === 'merge' ? `目标：${targetStandardName ?? '当前标准'}` : '新建标准草稿'}
@@ -298,9 +298,9 @@ export function StandardImportDialog({
         </div>
 
         {step === 'upload' && (
-          <div className="grid min-h-0 flex-1 gap-6 overflow-y-auto p-6 lg:grid-cols-[minmax(0,1.1fr)_360px]">
-            <div className="rounded-2xl border border-dashed border-blue-200 bg-blue-50/40 p-6">
-              <div className="flex items-center justify-between gap-4">
+          <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-4 sm:p-6 lg:grid-cols-[minmax(0,1.1fr)_360px] lg:gap-6">
+            <div className="rounded-2xl border border-dashed border-blue-200 bg-blue-50/40 p-4 sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div>
                   <h4 className="text-lg font-bold text-slate-900">上传标准文件</h4>
                   <p className="mt-1 text-sm text-slate-500">支持 Word 表格、Excel 工作簿和可复制文本 PDF</p>
@@ -346,7 +346,7 @@ export function StandardImportDialog({
                 }}
               />
 
-              <div className="mt-6 flex justify-end">
+              <div className="mt-6 flex sm:justify-end">
                 <button
                   type="button"
                   onClick={handleUpload}
@@ -361,7 +361,7 @@ export function StandardImportDialog({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
               <h4 className="text-base font-bold text-slate-900">处理机制</h4>
               <div className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
                 <p>Word 和 Excel 会保留表格行列、sheet、行号和列名，作为每个草稿项的证据来源。</p>
@@ -373,7 +373,7 @@ export function StandardImportDialog({
         )}
 
         {step === 'preview' && job && (
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-6">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4 sm:p-6">
             <div className="grid shrink-0 grid-cols-2 gap-3 md:grid-cols-5">
               {[
                 ['总项数', job.summary.total_rows],
@@ -390,7 +390,7 @@ export function StandardImportDialog({
             </div>
 
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1">
+              <div className="flex max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
                 <Filter className="ml-2 h-4 w-4 text-slate-400" />
                 {([
                   ['all', '全部'],
@@ -412,7 +412,7 @@ export function StandardImportDialog({
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {job.summary.conflict_rows > 0 && (
                   <>
                     <button

@@ -836,7 +836,7 @@ export function StandardDetailPage() {
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col gap-4 animate-fade-in">
-      <div className="flex shrink-0 items-center justify-between">
+      <div className="flex shrink-0 items-center justify-between gap-3">
         <button
           onClick={() => navigate('/standards')}
           className="group flex items-center gap-2 text-xs font-bold text-slate-400 transition-colors hover:text-adnoc-blue"
@@ -849,8 +849,8 @@ export function StandardDetailPage() {
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1 rounded-xl border border-slate-200 bg-white/70 p-1 shadow-sm backdrop-blur-sm">
-        <div className="flex min-w-0 flex-1 items-center gap-1">
+      <div className="flex shrink-0 flex-col gap-2 rounded-xl border border-slate-200 bg-white/70 p-1 shadow-sm backdrop-blur-sm lg:flex-row lg:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto pb-1 lg:pb-0">
           <button
             type="button"
             onClick={() => setActiveTab('tag')}
@@ -919,7 +919,7 @@ export function StandardDetailPage() {
           </button>
         </PermissionGate>
 
-        <div className="ml-auto flex min-w-[360px] max-w-[560px] items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50/80 px-1.5 py-1">
+        <div className="flex w-full min-w-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50/80 px-1.5 py-1 lg:ml-auto lg:min-w-[360px] lg:max-w-[560px]">
           <div
             className="group relative flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-white bg-gradient-to-br from-white to-blue-50 text-adnoc-blue shadow-sm transition-transform hover:scale-105"
             onClick={() => fileInputRef.current?.click()}
@@ -958,10 +958,10 @@ export function StandardDetailPage() {
                   版本 {standard.version_label}
                 </span>
               )}
-              <span className="shrink-0 rounded-full bg-slate-200 px-1.5 py-0 font-bold text-slate-600">
+              <span className="hidden shrink-0 rounded-full bg-slate-200 px-1.5 py-0 font-bold text-slate-600 sm:inline-flex">
                 {standard.classes.length} 个位号类型
               </span>
-              <span className="shrink-0 rounded-full bg-slate-200 px-1.5 py-0 font-bold text-slate-600">
+              <span className="hidden shrink-0 rounded-full bg-slate-200 px-1.5 py-0 font-bold text-slate-600 md:inline-flex">
                 {(standard.equipment_classes ?? []).length} 个设备类型
               </span>
             </div>
@@ -1003,7 +1003,7 @@ export function StandardDetailPage() {
           onEditNode={startEditingClass}
         />
 
-        <div className="min-h-[420px] xl:min-h-0">
+          <div className="min-h-[420px] min-w-0 xl:min-h-0">
           {currentScope ? (
             <div className="flex h-full min-h-0 flex-col gap-4 animate-fade-in">
               <div
@@ -1020,7 +1020,7 @@ export function StandardDetailPage() {
               >
                 <div className="min-w-0 space-y-1">
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <h2 className="truncate text-2xl font-black tracking-tight text-slate-900">{currentScope.name}</h2>
+                    <h2 className="min-w-0 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">{currentScope.name}</h2>
                     {selectedClass && (
                       <>
                         <span className="rounded-full bg-slate-100 px-2 py-1 font-mono text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -1100,7 +1100,7 @@ export function StandardDetailPage() {
                     </button>
                   </div>
                 </div>
-                <div className="relative max-h-[calc(100vh-20rem)] overflow-x-auto overflow-y-auto xl:min-h-0 xl:max-h-none xl:flex-1">
+                <div className="relative max-h-[calc(100dvh-16rem)] overflow-x-auto overflow-y-auto xl:min-h-0 xl:max-h-none xl:flex-1">
                   <table className="min-w-[1020px] w-full table-fixed border-separate border-spacing-0 text-left text-sm">
                     <thead className="sticky top-0 z-10 bg-slate-50/90 shadow-sm backdrop-blur-md">
                       <tr>

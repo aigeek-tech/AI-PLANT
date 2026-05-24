@@ -686,13 +686,13 @@ export function ProjectDocumentWorkspace({ projectId, standardId, pbsNodes }: Pr
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
-      <div className="mb-5 flex items-center justify-between">
+    <div className="flex min-h-full flex-col overflow-visible lg:h-full lg:overflow-hidden">
+      <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">图纸清单</h2>
           <p className="mt-1 text-sm text-slate-500">项目级图纸编号、版本历史和归档文件在这里集中管理。</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
           <button type="button" onClick={() => setIsBulkImportOpen(true)} className={softPrimaryButtonClass}>
             <span className={softPrimaryButtonIconClass}>
               <Upload className="h-4 w-4" />
@@ -708,7 +708,7 @@ export function ProjectDocumentWorkspace({ projectId, standardId, pbsNodes }: Pr
         </div>
       </div>
 
-      <div className="mb-4 grid grid-cols-[1fr_220px_180px_auto] gap-3">
+      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[1fr_220px_180px_auto]">
         <input
           value={filters.keyword}
           onChange={(event) => setFilters((current) => ({ ...current, keyword: event.target.value }))}
@@ -748,7 +748,7 @@ export function ProjectDocumentWorkspace({ projectId, standardId, pbsNodes }: Pr
         <button type="button" onClick={() => void loadDocuments()} className={secondaryButtonClass}>刷新</button>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(420px,1fr)_420px] gap-5">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(420px,1fr)_420px] xl:gap-5">
         <section className="min-w-0 min-h-0 overflow-hidden rounded-3xl border border-white/50 bg-white/70 shadow-xl shadow-slate-200/50 backdrop-blur-xl">
           <div className="border-b border-slate-100 px-5 py-4">
             <h3 className="font-semibold text-slate-900">图纸列表</h3>
@@ -759,7 +759,7 @@ export function ProjectDocumentWorkspace({ projectId, standardId, pbsNodes }: Pr
             ) : documents.length === 0 ? (
               <div className="p-12 text-center text-sm text-slate-400">暂无图纸记录</div>
             ) : (
-              <table className="w-full text-left text-sm">
+              <table className="min-w-[680px] w-full text-left text-sm">
                 <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-5 py-3">编号</th>
@@ -794,7 +794,7 @@ export function ProjectDocumentWorkspace({ projectId, standardId, pbsNodes }: Pr
           </div>
         </section>
 
-        <section className="min-w-0 min-h-0 overflow-hidden rounded-3xl border border-white/50 bg-white/70 shadow-xl shadow-slate-200/50 backdrop-blur-xl">
+        <section className="min-h-[520px] min-w-0 overflow-hidden rounded-3xl border border-white/50 bg-white/70 shadow-xl shadow-slate-200/50 backdrop-blur-xl xl:min-h-0">
           {isDetailLoading ? (
             <div className="flex h-full items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-adnoc-blue" /></div>
           ) : selectedDocument ? (
@@ -1094,8 +1094,8 @@ function DocumentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-      <form onSubmit={onSubmit} className="grid max-h-[90vh] w-full max-w-6xl grid-cols-[1.2fr_1fr] overflow-hidden rounded-3xl border border-white/60 bg-white shadow-2xl">
-        <div className="overflow-auto p-6">
+      <form onSubmit={onSubmit} className="grid max-h-[92dvh] w-full max-w-6xl grid-cols-1 overflow-hidden rounded-3xl border border-white/60 bg-white shadow-2xl lg:grid-cols-[1.2fr_1fr]">
+        <div className="overflow-auto p-4 sm:p-6">
           <div className="mb-5 flex items-center justify-between">
             <h3 className="text-lg font-bold text-slate-900">{draft.id ? '编辑图纸' : '新建图纸'}</h3>
             <button type="button" onClick={onClose} className="rounded-full p-2 text-slate-400 hover:bg-slate-100">
@@ -1178,7 +1178,7 @@ function DocumentModal({
           </div>
         </div>
 
-        <div className="overflow-auto border-l border-slate-100 bg-slate-50/70 p-6">
+        <div className="overflow-auto border-t border-slate-100 bg-slate-50/70 p-4 sm:p-6 lg:border-l lg:border-t-0">
           <LocalSelectionSection
             title="关联 PBS 节点"
             searchPlaceholder="按 PBS 编码或名称过滤"
@@ -1194,7 +1194,7 @@ function DocumentModal({
             initialSelectedItems={initialTagOptions.map((tag) => ({ id: tag.id, primary: tag.tag_no, secondary: tag.name }))}
             onToggle={(value) => toggleSelection('tag_ids', value)}
           />
-          <div className="mt-6 flex justify-end gap-3">
+          <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button type="button" onClick={onClose} className={secondaryButtonClass}>取消</button>
             <button type="submit" className={primaryButtonClass}>保存</button>
           </div>
@@ -1392,7 +1392,7 @@ function UploadDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-      <form onSubmit={handleSubmit} className="w-full max-w-3xl rounded-3xl border border-white/60 bg-white p-6 shadow-2xl">
+      <form onSubmit={handleSubmit} className="max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-white/60 bg-white p-4 shadow-2xl sm:p-6">
         <div className="mb-5 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-slate-900">上传版本文件</h3>
@@ -1402,7 +1402,7 @@ function UploadDialog({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="mb-4 flex gap-3">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row">
           <label className={`${secondaryButtonClass} ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}>
             <Upload className="h-4 w-4" />
             选择文件
@@ -1421,7 +1421,7 @@ function UploadDialog({
             />
           </label>
           {items.length > 0 && (
-            <div className="ml-auto self-center text-xs text-slate-500">
+            <div className="self-center text-xs text-slate-500 sm:ml-auto">
               共 {items.length} 个文件 · {formatBytes(uploadTotalBytes)}
             </div>
           )}
@@ -1465,7 +1465,7 @@ function UploadDialog({
           {items.length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-400">请选择，或直接拖拽一个或多个文件</div>
           ) : (
-            <table className="w-full text-left text-sm">
+            <table className="min-w-[680px] w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-4 py-3">文件</th>
@@ -1516,7 +1516,7 @@ function UploadDialog({
             </table>
           )}
         </div>
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} disabled={isSubmitting} className={secondaryButtonClass}>取消</button>
           <button type="submit" disabled={items.length === 0 || isSubmitting} className={primaryButtonClass}>
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}

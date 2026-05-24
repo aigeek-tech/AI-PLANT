@@ -49,12 +49,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-3">
+      <div className="pointer-events-none fixed inset-x-3 bottom-3 z-50 flex flex-col gap-3 sm:inset-x-auto sm:bottom-4 sm:right-4">
         {toasts.map((toastMessage) => (
           <div
             key={toastMessage.id}
             className={clsx(
-              'pointer-events-auto flex w-80 items-start gap-3 rounded-2xl border bg-white/90 p-4 shadow-xl backdrop-blur-xl transition-all animate-in slide-in-from-right-4 fade-in duration-300',
+              'pointer-events-auto flex w-full items-start gap-3 rounded-2xl border bg-white/90 p-4 shadow-xl backdrop-blur-xl transition-all animate-in slide-in-from-right-4 fade-in duration-300 sm:w-80',
               toastMessage.type === 'success' && 'border-green-200/50',
               toastMessage.type === 'error' && 'border-red-200/50',
               toastMessage.type === 'info' && 'border-blue-200/50'

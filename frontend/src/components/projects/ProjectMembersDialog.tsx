@@ -132,16 +132,16 @@ export function ProjectMembersDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-sm">
-      <div className="flex h-[min(88vh,900px)] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-2xl shadow-slate-900/20 backdrop-blur-xl">
-        <div className="border-b border-slate-200/70 px-8 py-6">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/45 p-3 backdrop-blur-sm sm:p-4">
+      <div className="flex h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/90 shadow-2xl shadow-slate-900/20 backdrop-blur-xl sm:h-[min(88vh,900px)] sm:rounded-[2rem]">
+        <div className="border-b border-slate-200/70 px-4 py-4 sm:px-8 sm:py-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-bold text-adnoc-blue">
                 <UsersRound className="h-3.5 w-3.5" />
                 PROJECT ACCESS
               </div>
-              <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-900">项目成员管理</h2>
+              <h2 className="mt-3 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">项目成员管理</h2>
               <p className="mt-2 text-sm text-slate-500">
                 为项目分配 Owner、编辑或查看角色。系统账号由“系统访问管理”统一维护。
               </p>
@@ -157,9 +157,9 @@ export function ProjectMembersDialog({
             <Loader2 className="h-8 w-8 animate-spin text-adnoc-blue" />
           </div>
         ) : (
-          <div className="grid min-h-0 flex-1 gap-0 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="min-h-0 border-r border-slate-200/70 p-6">
-              <div className="flex items-center gap-3">
+          <div className="grid min-h-0 flex-1 gap-0 overflow-auto lg:grid-cols-[1.2fr_0.8fr] lg:overflow-hidden">
+            <div className="min-h-0 border-b border-slate-200/70 p-4 sm:p-6 lg:border-b-0 lg:border-r">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
@@ -174,7 +174,7 @@ export function ProjectMembersDialog({
                 </div>
               </div>
 
-              <div className="mt-5 grid h-[calc(100%-5rem)] gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="mt-5 grid gap-4 lg:h-[calc(100%-5rem)] lg:grid-cols-[1.1fr_0.9fr]">
                 <div className="min-h-0 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/70 p-3">
                   <div className="space-y-2">
                     {members.map((member) => (
@@ -278,7 +278,7 @@ export function ProjectMembersDialog({
               </div>
             </div>
 
-            <div className="min-h-0 overflow-y-auto bg-slate-50/70 p-6">
+            <div className="min-h-0 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
               <div className="rounded-3xl border border-white/80 bg-white p-5 shadow-sm">
                 <h3 className="text-lg font-black text-slate-900">角色说明</h3>
                 <div className="mt-4 space-y-3">

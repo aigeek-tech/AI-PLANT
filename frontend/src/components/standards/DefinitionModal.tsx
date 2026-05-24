@@ -19,7 +19,7 @@ export function DefinitionModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-      <form onSubmit={onSubmit} className="w-full max-w-xl rounded-3xl border border-white/60 bg-white p-6 shadow-2xl">
+      <form onSubmit={onSubmit} className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-3xl border border-white/60 bg-white p-4 shadow-2xl sm:p-6">
         <div className="mb-5 flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-900">{title}</h3>
           <button type="button" onClick={onClose} className="rounded-full p-2 text-slate-400 hover:bg-slate-100">
@@ -27,7 +27,7 @@ export function DefinitionModal({
           </button>
         </div>
         <div className="space-y-4">{children}</div>
-        <div className="mt-6 flex justify-end gap-3">{footer}</div>
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">{footer}</div>
       </form>
     </div>
   );
