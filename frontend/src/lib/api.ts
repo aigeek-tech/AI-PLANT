@@ -1235,13 +1235,17 @@ export interface AgentMessageCreateResult {
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
+const DEV_API_FALLBACK_BASE_URL =
+  import.meta.env.DEV && !API_BASE_URL && typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:3001`
+    : '';
 export const AUTH_REQUIRED_EVENT = 'smart-design-auth-required';
 const GET_RESPONSE_CACHE_TTL_MS = 3000;
 const getResponseCache = new Map<string, { promise: Promise<unknown>; settledAt: number }>();
 
 export function buildApiUrl(path: string) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  return `${API_BASE_URL}${normalizedPath}`;
+  return `${API_BASE_URL || DEV_API_FALLBACK_BASE_URL}${normalizedPath}`;
 }
 
 export function buildApiAssetUrl(path: string | null | undefined) {
@@ -1318,6 +1322,35 @@ function clearGetResponseCache() {
   getResponseCache.clear();
 }
 
+function isHtmlResponse(response: Response) {
+  return (response.headers.get('content-type') ?? '').toLowerCase().includes('text/html');
+}
+
+async function fetchApi(path: string, init: RequestInit) {
+  const response = await fetch(`${API_BASE_URL}${path}`, init);
+  if (DEV_API_FALLBACK_BASE_URL && isHtmlResponse(response)) {
+    return fetch(`${DEV_API_FALLBACK_BASE_URL}${path}`, init);
+  }
+  return response;
+}
+
+async function parseJsonResponse<T>(response: Response): Promise<T> {
+  const text = await response.text();
+  if (!text) {
+    return null as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    const preview = text.slice(0, 120).replace(/\s+/g, ' ').trim();
+    const message = isHtmlResponse(response)
+      ? 'API returned HTML instead of JSON. Check the frontend API proxy or VITE_API_BASE_URL.'
+      : `Invalid JSON response from API.${preview ? ` Response started with: ${preview}` : ''}`;
+    throw new ApiError(message, response.status);
+  }
+}
+
 async function fetchJson<T>(path: string): Promise<T> {
   const cacheKey = getResponseCacheKey(path);
   const cached = getResponseCache.get(cacheKey);
@@ -1326,7 +1359,7 @@ async function fetchJson<T>(path: string): Promise<T> {
   }
 
   const request = (async () => {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const response = await fetchApi(path, {
       credentials: 'include',
       headers: localeHeaders(),
     });
@@ -1338,7 +1371,7 @@ async function fetchJson<T>(path: string): Promise<T> {
       throw new ApiError(await readErrorMessage(response), response.status);
     }
 
-    return response.json() as Promise<T>;
+    return parseJsonResponse<T>(response);
   })();
 
   getResponseCache.set(cacheKey, { promise: request, settledAt: Date.now() });
@@ -1359,7 +1392,7 @@ async function fetchJson<T>(path: string): Promise<T> {
 }
 
 async function requestJson<T>(path: string, init: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchApi(path, {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
@@ -1377,11 +1410,11 @@ async function requestJson<T>(path: string, init: RequestInit): Promise<T> {
   }
 
   clearGetResponseCache();
-  return response.json() as Promise<T>;
+  return parseJsonResponse<T>(response);
 }
 
 async function requestFormData<T>(path: string, init: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchApi(path, {
     credentials: 'include',
     headers: {
       ...localeHeaders(),
@@ -1398,11 +1431,11 @@ async function requestFormData<T>(path: string, init: RequestInit): Promise<T> {
   }
 
   clearGetResponseCache();
-  return response.json() as Promise<T>;
+  return parseJsonResponse<T>(response);
 }
 
 async function fetchBlob(path: string): Promise<Blob> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchApi(path, {
     credentials: 'include',
     headers: localeHeaders(),
   });
@@ -2945,7 +2978,7 @@ export async function listPlugins() {
 export async function uploadPluginPackage(file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  const response = await fetch(`${API_BASE_URL}/api/plugins/packages`, {
+  const response = await fetchApi('/api/plugins/packages', {
     method: 'POST',
     credentials: 'include',
     headers: localeHeaders(),
@@ -2957,7 +2990,7 @@ export async function uploadPluginPackage(file: File) {
     }
     throw new ApiError(await readErrorMessage(response), response.status);
   }
-  return (await response.json() as { data: Record<string, unknown> }).data;
+  return (await parseJsonResponse<{ data: Record<string, unknown> }>(response)).data;
 }
 
 export async function installPlugin(pluginId: string) {
