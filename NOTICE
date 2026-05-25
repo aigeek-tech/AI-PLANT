@@ -6,9 +6,15 @@ Copyright (c) 2026 深圳艾极科技有限公司
 This product includes software developed by Shenzhen Aigeek Technology Co., Ltd.
 (深圳艾极科技有限公司).
 
-Commercial use is permitted under the Smart Design Commercial Use License with
-Branding Preservation, provided that copyright notices, this NOTICE file, and
-the Aigeek / 艾极科技 logo and attribution are retained as required by the
-license.
+This product is distributed under the GNU Affero General Public License version
+3 only (AGPL-3.0-only), with additional attribution, logo preservation,
+modification notice, and trademark reservation terms under AGPLv3 Section 7 as
+specified in the repository root LICENSE file.
+
+Modified versions, including versions used to provide a network service, must
+make the corresponding source code available as required by the AGPLv3.
+
+Copyright notices, this NOTICE file, and the Aigeek / 艾极科技 logo and
+attribution must be retained as required by the LICENSE file.
 
 Third-party components are distributed under their respective licenses.

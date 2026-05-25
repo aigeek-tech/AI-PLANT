@@ -1,43 +1,60 @@
-Smart Design Commercial Use License with Branding Preservation
+AI PLANT License
+
+SPDX-License-Identifier: AGPL-3.0-only
 
 Copyright (c) 2026 Shenzhen Aigeek Technology Co., Ltd.
 Copyright (c) 2026 深圳艾极科技有限公司
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
-Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
+AI PLANT is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, version 3 only.
 
-1. Copyright and License Notice
+This license choice is intended to require modified versions, including versions
+used to provide a network service, to make the corresponding source code
+available under the same license.
 
-   The above copyright notice, this license, and the NOTICE file, if present,
-   must be included in all copies or substantial portions of the Software.
+The full text of the GNU Affero General Public License version 3 is available at:
 
-2. Branding Preservation
+https://www.gnu.org/licenses/agpl-3.0.html
 
-   The Aigeek / 艾极科技 logo, name, and attribution that appear in the
+Additional Terms Under GNU AGPLv3 Section 7
+==========================================
+
+The following additional terms apply to the covered work under Section 7 of the
+GNU Affero General Public License version 3:
+
+1. Preservation of Legal Notices and Attribution
+
+   You must preserve all copyright notices, license notices, the NOTICE file,
+   and reasonable author attribution notices that identify Shenzhen Aigeek
+   Technology Co., Ltd. / 深圳艾极科技有限公司, Aigeek / 艾极科技, and AI PLANT.
+
+2. User Interface Attribution and Logo
+
+   The Aigeek / 艾极科技 logo, name, and attribution notices that appear in the
    Software's user interface, documentation, about pages, license pages, or
    distribution materials must not be removed, hidden, or obscured.
 
    Modified versions may add their own branding, product name, and attribution,
    provided that the original Aigeek / 艾极科技 logo and attribution remain
    visible in a reasonably prominent location wherever the original Software
-   displays project or vendor branding.
+   displays project, vendor, or legal attribution branding.
 
-3. Modification Notice
+3. Modified Version Notices
 
-   If you distribute a modified version of the Software, you must make it clear
-   that the version has been modified and must not imply that Shenzhen Aigeek
-   Technology Co., Ltd. or 深圳艾极科技有限公司 endorses your modified version,
-   service, product, or distribution.
+   If you modify the Software or distribute, deploy, or provide network access
+   to a modified version, you must make it clear that the version has been
+   modified. You must not imply that Shenzhen Aigeek Technology Co., Ltd. /
+   深圳艾极科技有限公司 endorses your modified version, service, product, or
+   distribution unless you have prior written permission.
 
 4. Trademark Reservation
 
-   Except for the branding preservation requirement above, this license does not
-   grant permission to use the trade names, trademarks, service marks, or logos
-   of Shenzhen Aigeek Technology Co., Ltd. or 深圳艾极科技有限公司 to promote or
-   endorse any product or service without prior written permission.
+   Except for preserving the required notices, logo, and attribution described
+   above, this license does not grant permission to use the trade names,
+   trademarks, service marks, or logos of Shenzhen Aigeek Technology Co., Ltd. /
+   深圳艾极科技有限公司 to promote or endorse any product or service without prior
+   written permission.
 
 5. Third-Party Components
 
@@ -45,9 +62,13 @@ subject to the following conditions:
    or used by the Software remain subject to their own licenses. This license
    does not override or replace any third-party license terms.
 
+Warranty Disclaimer
+===================
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED
+BY APPLICABLE LAW, THE AUTHORS AND COPYRIGHT HOLDERS SHALL NOT BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.

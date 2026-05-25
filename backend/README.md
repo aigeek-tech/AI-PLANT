@@ -107,7 +107,7 @@ Future schema changes must be added as new ordered incrementals starting at the 
 
 ## License
 
-The backend is distributed under the repository root `LICENSE`. Commercial use is permitted, but copyright notices, the `NOTICE` file, and the Aigeek / 艾极科技 logo and attribution must be retained. Third-party dependencies remain under their own licenses.
+The backend is distributed under the repository root `LICENSE` as AGPL-3.0-only with additional attribution, logo preservation, modification notice, and trademark reservation terms under AGPLv3 Section 7. Modified versions, including versions used to provide a network service, must make the corresponding source code available as required by the AGPLv3. Copyright notices, the `NOTICE` file, and the Aigeek / 艾极科技 logo and attribution must be retained. Third-party dependencies remain under their own licenses.
 
 ## Validation
 

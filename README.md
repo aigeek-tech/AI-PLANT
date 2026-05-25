@@ -168,7 +168,7 @@ This repository is the base open-source edition:
 
 ### License
 
-This project is distributed under the repository root `LICENSE`. Commercial use is permitted, but copyright notices, the `NOTICE` file, and the Aigeek / 艾极科技 logo and attribution must be retained. Third-party dependencies remain under their own licenses.
+This project is distributed under the repository root `LICENSE` as AGPL-3.0-only with additional attribution, logo preservation, modification notice, and trademark reservation terms under AGPLv3 Section 7. Modified versions, including versions used to provide a network service, must make the corresponding source code available as required by the AGPLv3. Copyright notices, the `NOTICE` file, and the Aigeek / 艾极科技 logo and attribution must be retained. Third-party dependencies remain under their own licenses.
 
 ## 中文
 
@@ -336,4 +336,4 @@ python -m pytest
 
 ### License
 
-本项目按仓库根目录 `LICENSE` 分发。商业使用被允许，但必须保留版权声明、`NOTICE` 文件以及 Aigeek / 艾极科技 Logo 和归属声明。第三方依赖继续遵循各自许可证。
+本项目按仓库根目录 `LICENSE` 分发，采用 AGPL-3.0-only，并根据 AGPLv3 第 7 条附加归属声明、Logo 保留、修改声明和商标保留条款。修改版本，包括用于提供网络服务的修改版本，必须按 AGPLv3 要求提供对应源代码。必须保留版权声明、`NOTICE` 文件以及 Aigeek / 艾极科技 Logo 和归属声明。第三方依赖继续遵循各自许可证。
