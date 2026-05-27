@@ -2965,6 +2965,13 @@ export async function getCurrentUser() {
   return response.data;
 }
 
+export async function changeCurrentUserPassword(payload: { current_password: string; new_password: string }) {
+  await requestJson('/api/auth/me/password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function getEnabledPluginManifest() {
   const response = await fetchJson<{ data: EnabledPluginManifestResult }>('/api/plugins/enabled-manifest');
   return response.data;
@@ -3035,6 +3042,14 @@ export async function updateUser(userId: string, payload: UserUpdatePayload) {
   const response = await requestJson<{ data: AuthUserSummary }>(`/api/auth/users/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
+  });
+  return response.data;
+}
+
+export async function resetUserPassword(userId: string, newPassword: string) {
+  const response = await requestJson<{ data: AuthUserSummary }>(`/api/auth/users/${userId}/password`, {
+    method: 'POST',
+    body: JSON.stringify({ new_password: newPassword }),
   });
   return response.data;
 }

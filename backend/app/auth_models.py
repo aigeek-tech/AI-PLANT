@@ -58,6 +58,31 @@ class UserUpdateRequest(BaseModel):
         return stripped or None
 
 
+class CurrentUserPasswordChangeRequest(BaseModel):
+    current_password: str = Field(min_length=1)
+    new_password: str = Field(min_length=8)
+
+    @field_validator("current_password", "new_password")
+    @classmethod
+    def strip_password_text(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("Value cannot be blank")
+        return stripped
+
+
+class AdminPasswordResetRequest(BaseModel):
+    new_password: str = Field(min_length=8)
+
+    @field_validator("new_password")
+    @classmethod
+    def strip_new_password(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("Value cannot be blank")
+        return stripped
+
+
 class BootstrapAdminRequest(UserCreateRequest):
     pass
 

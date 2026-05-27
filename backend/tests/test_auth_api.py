@@ -411,6 +411,7 @@ def test_user_update_audit_redacts_password():
     }
     with (
         patch("app.auth_api.update_user", return_value=user),
+        patch("app.auth_api.revoke_all_user_sessions") as revoke_all_user_sessions,
         patch("app.auth_api.record_authorization_audit_log") as record_authorization_audit_log,
     ):
         response = client.patch(
@@ -422,6 +423,94 @@ def test_user_update_audit_redacts_password():
     audit_metadata = record_authorization_audit_log.call_args.kwargs["metadata"]
     assert "password" not in audit_metadata
     assert audit_metadata["password_changed"] is True
+    revoke_all_user_sessions.assert_called_once_with("user-1")
+
+
+def test_current_user_can_change_password_with_current_password():
+    current_user = AuthenticatedUser(
+        id="user-1",
+        username="alice",
+        email="alice@example.test",
+        display_name="Alice",
+        status="active",
+        last_login_at=None,
+        created_at="2026-04-23T00:00:00Z",
+        updated_at="2026-04-23T00:00:00Z",
+    )
+    with override_authenticated_user(current_user):
+        with (
+            patch("app.auth_api.get_user_by_id", return_value=_user_row()),
+            patch("app.auth_api.update_user_password") as update_user_password,
+            patch("app.auth_api.revoke_all_user_sessions") as revoke_all_user_sessions,
+            patch("app.auth_api.record_authorization_audit_log") as record_authorization_audit_log,
+        ):
+            response = client.post(
+                "/api/auth/me/password",
+                json={"current_password": "correct-password", "new_password": "new-password-123"},
+            )
+
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    update_user_password.assert_called_once_with("user-1", "new-password-123")
+    revoke_all_user_sessions.assert_called_once_with("user-1")
+    assert "smart_design_session=" in response.headers["set-cookie"]
+    audit_metadata = record_authorization_audit_log.call_args.kwargs["metadata"]
+    assert audit_metadata == {"password_changed": True, "self_service": True}
+
+
+def test_current_user_password_change_rejects_wrong_current_password():
+    current_user = AuthenticatedUser(
+        id="user-1",
+        username="alice",
+        email="alice@example.test",
+        display_name="Alice",
+        status="active",
+        last_login_at=None,
+        created_at="2026-04-23T00:00:00Z",
+        updated_at="2026-04-23T00:00:00Z",
+    )
+    with override_authenticated_user(current_user):
+        with (
+            patch("app.auth_api.get_user_by_id", return_value=_user_row()),
+            patch("app.auth_api.update_user_password") as update_user_password,
+        ):
+            response = client.post(
+                "/api/auth/me/password",
+                json={"current_password": "wrong-password", "new_password": "new-password-123"},
+            )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Current password is incorrect"}
+    update_user_password.assert_not_called()
+
+
+def test_admin_can_reset_user_password_and_revoke_sessions():
+    user = {
+        "id": "user-1",
+        "username": "alice",
+        "email": "alice@example.test",
+        "display_name": "Alice",
+        "status": "active",
+        "last_login_at": None,
+        "created_at": "2026-04-23T00:00:00Z",
+        "updated_at": "2026-04-23T00:00:00Z",
+    }
+    with (
+        patch("app.auth_api.update_user_password", return_value=user) as update_user_password,
+        patch("app.auth_api.revoke_all_user_sessions") as revoke_all_user_sessions,
+        patch("app.auth_api.record_authorization_audit_log") as record_authorization_audit_log,
+    ):
+        response = client.post(
+            "/api/auth/users/user-1/password",
+            json={"new_password": "new-password-123"},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {"data": user}
+    update_user_password.assert_called_once_with("user-1", "new-password-123")
+    revoke_all_user_sessions.assert_called_once_with("user-1")
+    audit_metadata = record_authorization_audit_log.call_args.kwargs["metadata"]
+    assert audit_metadata == {"password_changed": True, "reset_by_admin": True}
 
 
 def test_updates_user_system_roles():

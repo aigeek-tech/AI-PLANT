@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
   Download,
@@ -16,10 +17,12 @@ import { Card } from '../../components/ui/Card';
 import { useToast } from '../../components/ui/Toast';
 import { useAuth } from '../../auth/AuthProvider';
 import {
+  AUTH_REQUIRED_EVENT,
   createUser,
   downloadUsersExport,
   listRoles,
   listUsers,
+  resetUserPassword,
   updateUser,
   updateUserSystemRoles,
   type AuthRoleSummary,
@@ -104,8 +107,9 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export function AccessManagementPage() {
+  const navigate = useNavigate();
   const { success, error: showError } = useToast();
-  const { can } = useAuth();
+  const { auth, can } = useAuth();
   const canManageUsers = can('system.user.manage');
   const canManageRoles = can('system.role.manage');
   const [activeTab, setActiveTab] = useState<'users' | 'roles'>(canManageUsers ? 'users' : 'roles');
@@ -116,6 +120,7 @@ export function AccessManagementPage() {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExportingUsers, setIsExportingUsers] = useState(false);
   const [editingUser, setEditingUser] = useState<AuthUserSummary | null>(null);
+  const [passwordResetUser, setPasswordResetUser] = useState<AuthUserSummary | null>(null);
   const [roleEditingUser, setRoleEditingUser] = useState<AuthUserSummary | null>(null);
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
 
@@ -165,7 +170,6 @@ export function AccessManagementPage() {
       await updateUser(userId, {
         display_name: payload.display_name,
         email: payload.email || null,
-        password: payload.password || null,
         status: payload.status,
       });
       success('账号资料已保存。');
@@ -173,6 +177,26 @@ export function AccessManagementPage() {
       await loadData();
     } catch (updateError) {
       showError(updateError instanceof Error ? updateError.message : '保存账号失败');
+    } finally {
+      setSavingUserId(null);
+    }
+  };
+
+  const handleResetPassword = async (userId: string, newPassword: string) => {
+    setSavingUserId(userId);
+    try {
+      await resetUserPassword(userId, newPassword);
+      const isSelfReset = auth?.user.id === userId;
+      success(isSelfReset ? '密码已重置，请重新登录。' : '密码已重置，目标用户需使用新密码登录。');
+      setPasswordResetUser(null);
+      if (isSelfReset) {
+        window.dispatchEvent(new Event(AUTH_REQUIRED_EVENT));
+        navigate('/login', { replace: true });
+        return;
+      }
+      await loadData();
+    } catch (resetError) {
+      showError(resetError instanceof Error ? resetError.message : '重置密码失败');
     } finally {
       setSavingUserId(null);
     }
@@ -311,6 +335,10 @@ export function AccessManagementPage() {
                         <button type="button" onClick={() => setEditingUser(user)} className={secondaryButtonClass}>
                           编辑账号
                         </button>
+                        <button type="button" onClick={() => setPasswordResetUser(user)} className={secondaryButtonClass}>
+                          <KeyRound className="h-4 w-4" />
+                          重置密码
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -392,6 +420,15 @@ export function AccessManagementPage() {
         />
       )}
 
+      {passwordResetUser && canManageUsers && (
+        <PasswordResetModal
+          user={passwordResetUser}
+          isSaving={savingUserId === passwordResetUser.id}
+          onClose={() => setPasswordResetUser(null)}
+          onSubmit={(newPassword) => handleResetPassword(passwordResetUser.id, newPassword)}
+        />
+      )}
+
       {roleEditingUser && canManageRoles && (
         <SystemRoleModal
           user={roleEditingUser}
@@ -468,8 +505,9 @@ function UserFormModal({
 }) {
   const [draft, setDraft] = useState<UserDraft>(initialDraft);
   const passwordValue = draft.password.trim();
-  const passwordIsValid = requirePassword ? passwordValue.length >= 8 : passwordValue.length === 0 || passwordValue.length >= 8;
-  const showPasswordError = passwordValue.length > 0 && !passwordIsValid;
+  const showPasswordField = requirePassword;
+  const passwordIsValid = showPasswordField ? passwordValue.length >= 8 : true;
+  const showPasswordError = showPasswordField && passwordValue.length > 0 && !passwordIsValid;
   const canSubmit = draft.username.trim() && draft.display_name.trim() && passwordIsValid;
 
   const updateDraft = (key: keyof UserDraft, value: string) => {
@@ -500,7 +538,7 @@ function UserFormModal({
       >
         <h2 id="user-form-modal-title" className="text-2xl font-black text-slate-900">{title}</h2>
         <p className="mt-2 text-sm text-slate-500">
-          {requirePassword ? '请填写账号基础信息并设置初始密码，密码至少 8 位。' : '留空密码表示不修改密码。'}
+          {requirePassword ? '请填写账号基础信息并设置初始密码，密码至少 8 位。' : '修改账号基础资料。密码请使用列表中的重置密码操作。'}
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <label className="block">
@@ -533,17 +571,19 @@ function UserFormModal({
               type="email"
             />
           </label>
-          <label className="block">
-            <span className="text-xs font-bold tracking-widest text-slate-500">密码</span>
-            <input
-              value={draft.password}
-              onChange={(event) => updateDraft('password', event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-adnoc-blue focus:ring-4 focus:ring-adnoc-blue/10"
-              type="password"
-              required={requirePassword}
-            />
-            {showPasswordError && <p className="mt-2 text-xs font-medium text-red-600">密码至少需要 8 位。</p>}
-          </label>
+          {showPasswordField && (
+            <label className="block">
+              <span className="text-xs font-bold tracking-widest text-slate-500">密码</span>
+              <input
+                value={draft.password}
+                onChange={(event) => updateDraft('password', event.target.value)}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-adnoc-blue focus:ring-4 focus:ring-adnoc-blue/10"
+                type="password"
+                required={requirePassword}
+              />
+              {showPasswordError && <p className="mt-2 text-xs font-medium text-red-600">密码至少需要 8 位。</p>}
+            </label>
+          )}
           <label className="block">
             <span className="text-xs font-bold tracking-widest text-slate-500">状态</span>
             <SearchableSelect
@@ -563,6 +603,86 @@ function UserFormModal({
           <button type="submit" disabled={!canSubmit || isSaving} className={primaryButtonClass}>
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             {submitText}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+
+  return createPortal(modalContent, document.body);
+}
+
+function PasswordResetModal({
+  user,
+  isSaving,
+  onClose,
+  onSubmit,
+}: {
+  user: AuthUserSummary;
+  isSaving: boolean;
+  onClose: () => void;
+  onSubmit: (newPassword: string) => void | Promise<void>;
+}) {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const trimmedNewPassword = newPassword.trim();
+  const trimmedConfirmPassword = confirmPassword.trim();
+  const passwordTooShort = trimmedNewPassword.length > 0 && trimmedNewPassword.length < 8;
+  const passwordMismatch = trimmedConfirmPassword.length > 0 && trimmedNewPassword !== trimmedConfirmPassword;
+  const canSubmit = trimmedNewPassword.length >= 8 && trimmedNewPassword === trimmedConfirmPassword;
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    if (!canSubmit || isSaving) return;
+    void onSubmit(trimmedNewPassword);
+  };
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-sm" onClick={onClose}>
+      <form
+        onSubmit={handleSubmit}
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="password-reset-modal-title"
+        className="w-full max-w-md rounded-[2rem] border border-white/70 bg-white/95 p-8 shadow-2xl shadow-slate-900/20 backdrop-blur-xl"
+      >
+        <h2 id="password-reset-modal-title" className="text-2xl font-black text-slate-900">重置密码</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          {user.display_name} / {user.username}。保存后该账号的已登录会话会失效。
+        </p>
+        <div className="mt-6 space-y-4">
+          <label className="block">
+            <span className="text-xs font-bold tracking-widest text-slate-500">新密码</span>
+            <input
+              autoFocus
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-adnoc-blue focus:ring-4 focus:ring-adnoc-blue/10"
+              type="password"
+              autoComplete="new-password"
+              required
+            />
+            {passwordTooShort && <p className="mt-2 text-xs font-medium text-red-600">密码至少需要 8 位。</p>}
+          </label>
+          <label className="block">
+            <span className="text-xs font-bold tracking-widest text-slate-500">确认新密码</span>
+            <input
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-adnoc-blue focus:ring-4 focus:ring-adnoc-blue/10"
+              type="password"
+              autoComplete="new-password"
+              required
+            />
+            {passwordMismatch && <p className="mt-2 text-xs font-medium text-red-600">两次输入的新密码不一致。</p>}
+          </label>
+        </div>
+        <div className="mt-8 flex justify-end gap-3">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>取消</button>
+          <button type="submit" disabled={!canSubmit || isSaving} className={primaryButtonClass}>
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+            保存密码
           </button>
         </div>
       </form>

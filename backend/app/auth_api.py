@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, Res
 from psycopg import IntegrityError
 
 from .auth_models import (
+    AdminPasswordResetRequest,
     AuthMeResponse,
     BootstrapAdminRequest,
+    CurrentUserPasswordChangeRequest,
     LoginRequest,
     ProjectMemberAssignmentRequest,
     UserImportRowPatch,
@@ -35,6 +37,7 @@ from .auth_repository import (
     sync_project_member_roles,
     sync_system_user_roles,
     update_user,
+    update_user_password,
 )
 from .authorization import AuthenticatedUser, build_authenticated_user, require_authenticated_user, require_permission, require_project_permission
 from .errors import localized_http_exception
@@ -169,6 +172,37 @@ def me(current_user: AuthenticatedUser = Depends(require_authenticated_user)) ->
     return {"data": _me_payload(current_user)}
 
 
+@router.post("/me/password")
+def change_current_user_password(
+    payload: CurrentUserPasswordChangeRequest,
+    response: Response,
+    current_user: AuthenticatedUser = Depends(require_authenticated_user),
+) -> dict:
+    user = get_user_by_id(current_user.id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not verify_password(payload.current_password, user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if verify_password(payload.new_password, user["password_hash"]):
+        raise HTTPException(status_code=400, detail="New password must be different from the current password")
+
+    updated_user = update_user_password(current_user.id, payload.new_password)
+    if updated_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    revoke_all_user_sessions(current_user.id)
+    response.delete_cookie(get_session_cookie_settings().name, path="/")
+    record_authorization_audit_log(
+        actor_user_id=current_user.id,
+        action="auth.password.change",
+        scope_kind="system",
+        scope_id=None,
+        target_type="user",
+        target_id=current_user.id,
+        metadata={"password_changed": True, "self_service": True},
+    )
+    return {"ok": True}
+
+
 @router.get("/users")
 def users_list(_current_user: AuthenticatedUser = Depends(require_permission("system.user.manage"))) -> dict:
     return {"data": list_users()}
@@ -209,6 +243,8 @@ def update_existing_user(
         raise HTTPException(status_code=404, detail="User not found")
     if payload.status == "disabled":
         revoke_all_user_sessions(user_id)
+    elif payload.password:
+        revoke_all_user_sessions(user_id)
     audit_metadata = payload.model_dump(exclude_none=True, exclude={"password"})
     if payload.password:
         audit_metadata["password_changed"] = True
@@ -220,6 +256,28 @@ def update_existing_user(
         target_type="user",
         target_id=user_id,
         metadata=audit_metadata,
+    )
+    return {"data": user}
+
+
+@router.post("/users/{user_id}/password")
+def reset_user_password(
+    user_id: str,
+    payload: AdminPasswordResetRequest,
+    current_user: AuthenticatedUser = Depends(require_permission("system.user.manage")),
+) -> dict:
+    user = update_user_password(user_id, payload.new_password)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    revoke_all_user_sessions(user_id)
+    record_authorization_audit_log(
+        actor_user_id=current_user.id,
+        action="user.password.reset",
+        scope_kind="system",
+        scope_id=None,
+        target_type="user",
+        target_id=user_id,
+        metadata={"password_changed": True, "reset_by_admin": True},
     )
     return {"data": user}
 

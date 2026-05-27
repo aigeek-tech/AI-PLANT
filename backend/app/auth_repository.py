@@ -280,6 +280,24 @@ def update_user(user_id: str, payload: dict) -> dict | None:
     return _user_row_public(user)
 
 
+def update_user_password(user_id: str, new_password: str) -> dict | None:
+    updated = execute_one(
+        """
+        UPDATE user_account
+        SET
+            password_hash = %s,
+            updated_at = now()
+        WHERE id = %s
+        RETURNING id
+        """,
+        (hash_password(new_password), user_id),
+    )
+    if updated is None:
+        return None
+    user = get_user_by_id(user_id)
+    return _user_row_public(user)
+
+
 def create_session(user_id: str, *, user_agent: str | None, ip_address: str | None) -> tuple[str, dict]:
     token = generate_session_token()
     token_hash = hash_session_token(token)
